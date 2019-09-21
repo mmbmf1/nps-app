@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width">
+        <title>National Park Service App</title>
+        <link href="https://fonts.googleapis.com/css?family=Raleway|Roboto+Slab&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="main.css" type="text/css">
+    </head>
+    <body>
+        <div class="container">
+            <h1>National Park Search by State</h1>
+            <form id="js-form">
+                <label for="state-park-search">Enter the 2 Letter Code for the State:</label>
+                <input type="text" name="state-park-search" id="js-state-park-search" maxlength="2" required>
+                <label for="max-results">Max results to display:</label>
+                <input type="number" name="max-results" id="js-max-results" value="10">
+                <input type="submit" value="Search">
+            </form>
+            <p id="js-error-message" class="error-message"></p>
+            <section id="results" class="hidden">
+                <h2>Search Results</h2>
+                <ul id="results-list"></ul>
+            </section>
+        </div>
+        <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+        <script src="index.js"></script>
+    </body>
+</html>
