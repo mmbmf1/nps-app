@@ -2,6 +2,8 @@
 
 a simple web app to search for national parks by state using the national park service api.
 
+**[live demo](https://mmbmf1.github.io/nps-app/)**
+
 ## what it does
 
 - search for national parks by entering state codes (e.g., AZ, CA, NY)
