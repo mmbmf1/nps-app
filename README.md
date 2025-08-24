@@ -13,7 +13,7 @@ a simple web app to search for national parks by state using the national park s
 ## setup
 
 1. get a free api key from [nps.gov](https://www.nps.gov/subjects/developer/get-started.htm)
-2. copy `config.example.js` to `config.js`
+2. copy `js/config.example.js` to `js/config.js`
 3. replace `your_api_key_here` with your actual api key
 4. open `index.html` in your browser
 
