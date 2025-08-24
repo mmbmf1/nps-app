@@ -2,7 +2,7 @@
 
 a simple web app to search for national parks by state using the national park service api.
 
-**[live demo](https://mmbmf1.github.io/nps-app/)**
+**[live demo](https://nps-app-xi.vercel.app/)**
 
 ## what it does
 
