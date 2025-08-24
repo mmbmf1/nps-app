@@ -25,7 +25,7 @@ function hideLoading() {
 }
 
 //display results in DOM
-function displayResults(responseJson, maxResults) {
+function displayResults(responseJson, maxResults, requestedStates) {
   $('#results-list').empty()
   $('#js-error-message').empty()
 
@@ -36,8 +36,36 @@ function displayResults(responseJson, maxResults) {
     return
   }
 
-  for (let i = 0; i < responseJson.data.length && i < responseJson.limit; i++) {
-    const park = responseJson.data[i]
+  console.log('Requested states:', requestedStates)
+  console.log('API response:', responseJson.data)
+
+  // Filter results to only show parks from the requested states
+  const requestedStateCodes = requestedStates
+    .split(',')
+    .map((code) => code.trim().toUpperCase())
+  const filteredParks = responseJson.data.filter((park) => {
+    // Check if the park has addresses and if any address is in the requested states
+    if (park.addresses && park.addresses.length > 0) {
+      const parkStates = park.addresses.map((addr) => addr.stateCode)
+      console.log(`Park: ${park.fullName}, States: ${parkStates}`)
+      return park.addresses.some((address) =>
+        requestedStateCodes.includes(address.stateCode)
+      )
+    }
+    return false
+  })
+
+  console.log('Filtered parks:', filteredParks)
+
+  if (filteredParks.length === 0) {
+    $('#js-error-message').text(
+      'No parks found for the specified states. Please try different state codes.'
+    )
+    return
+  }
+
+  for (let i = 0; i < filteredParks.length && i < maxResults; i++) {
+    const park = filteredParks[i]
     const address =
       park.addresses && park.addresses[1] ? park.addresses[1] : null
 
@@ -71,7 +99,7 @@ function getNatParkList(query, maxResults) {
       }
       throw new Error(`HTTP ${response.status}: ${response.statusText}`)
     })
-    .then((responseJson) => displayResults(responseJson, maxResults))
+    .then((responseJson) => displayResults(responseJson, maxResults, query))
     .catch((error) => {
       $('#js-error-message').text(`Something went wrong: ${error.message}`)
     })
