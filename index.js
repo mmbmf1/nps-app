@@ -1,6 +1,7 @@
 'use strict'
 
-const keyValue = 'PZIGouZyjjkJFT2NuHv1I0U5vvRpCBeWqU4ksuWl'
+// Load configuration
+const API_KEY = config.NPS_API_KEY
 const searchURL = 'https://developer.nps.gov/api/v1/parks'
 
 //format query search
@@ -34,7 +35,7 @@ function getNatParkList(query, maxResults) {
     stateCode: query,
     limit: maxResults,
     fields: 'addresses',
-    api_key: keyValue,
+    api_key: API_KEY,
   }
   const queryString = formatQueryParams(params)
   const url = searchURL + '?' + queryString
