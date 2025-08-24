@@ -36,9 +36,6 @@ function displayResults(responseJson, maxResults, requestedStates) {
     return
   }
 
-  console.log('Requested states:', requestedStates)
-  console.log('API response:', responseJson.data)
-
   // Filter results to only show parks from the requested states
   const requestedStateCodes = requestedStates
     .split(',')
@@ -46,16 +43,12 @@ function displayResults(responseJson, maxResults, requestedStates) {
   const filteredParks = responseJson.data.filter((park) => {
     // Check if the park has addresses and if any address is in the requested states
     if (park.addresses && park.addresses.length > 0) {
-      const parkStates = park.addresses.map((addr) => addr.stateCode)
-      console.log(`Park: ${park.fullName}, States: ${parkStates}`)
       return park.addresses.some((address) =>
         requestedStateCodes.includes(address.stateCode)
       )
     }
     return false
   })
-
-  console.log('Filtered parks:', filteredParks)
 
   if (filteredParks.length === 0) {
     $('#js-error-message').text(
