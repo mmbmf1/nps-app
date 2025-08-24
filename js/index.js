@@ -1,6 +1,7 @@
 'use strict'
 
-const API_KEY = config.NPS_API_KEY
+// load configuration
+const API_KEY = process.env.NPS_API_KEY || config.NPS_API_KEY
 const searchURL = 'https://developer.nps.gov/api/v1/parks'
 
 // format query search
