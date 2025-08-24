@@ -33,6 +33,7 @@ a simple web app to search for national parks by state using the national park s
 - loading states and error handling
 - accessible design with keyboard navigation
 - clean, modern ui with natural color scheme
+- keyboard shortcut: Cmd+K to focus search input
 
 ## tech
 
@@ -41,3 +42,4 @@ a simple web app to search for national parks by state using the national park s
 - national park service api
 - html5 & css3
 - responsive design
+- vercel deployment with secure api key management
