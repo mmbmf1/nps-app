@@ -1,10 +1,9 @@
 'use strict'
 
-// Load configuration
 const API_KEY = config.NPS_API_KEY
 const searchURL = 'https://developer.nps.gov/api/v1/parks'
 
-//format query search
+// format query search
 function formatQueryParams(params) {
   const queryItems = Object.keys(params).map(
     (key) => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`
@@ -12,19 +11,19 @@ function formatQueryParams(params) {
   return queryItems.join('&')
 }
 
-//show loading state
+// show loading state
 function showLoading() {
   $('#js-error-message').empty()
   $('#results').addClass('hidden')
   $('#js-form input[type="submit"]').prop('disabled', true).val('Searching...')
 }
 
-//hide loading state
+// hide loading state
 function hideLoading() {
   $('#js-form input[type="submit"]').prop('disabled', false).val('Search')
 }
 
-//display results in DOM
+// display results in DOM
 function displayResults(responseJson, maxResults, requestedStates) {
   $('#results-list').empty()
   $('#js-error-message').empty()
@@ -74,7 +73,7 @@ function displayResults(responseJson, maxResults, requestedStates) {
   $('#results').removeClass('hidden')
 }
 
-//GET query & response from API
+//  GET query & response from API
 function getNatParkList(query, maxResults) {
   const params = {
     stateCode: query,
@@ -101,7 +100,7 @@ function getNatParkList(query, maxResults) {
     })
 }
 
-//validate state codes
+// validate state codes
 function validateStateCodes(codes) {
   const validStates = [
     'AL',
@@ -166,7 +165,7 @@ function validateStateCodes(codes) {
   return null
 }
 
-//listen for submit
+// listen for submit
 function watchForm() {
   $('#js-form').submit((event) => {
     event.preventDefault()
@@ -186,6 +185,13 @@ function watchForm() {
 
     showLoading()
     getNatParkList(searchTerm, maxResults)
+  })
+
+  $(document).on('keydown', function (event) {
+    if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
+      event.preventDefault()
+      $('#js-state-park-search').focus()
+    }
   })
 }
 
