@@ -8,6 +8,7 @@ a simple web app to search for national parks by state using the national park s
 - displays park names, descriptions, websites, and addresses
 - limit the number of results shown
 - clean, responsive interface
+- mobile-friendly design
 
 ## setup
 
@@ -23,9 +24,18 @@ a simple web app to search for national parks by state using the national park s
 3. click search
 4. browse the results
 
+## features
+
+- responsive design that works on desktop and mobile
+- input validation for state codes
+- loading states and error handling
+- accessible design with keyboard navigation
+- clean, modern ui with natural color scheme
+
 ## tech
 
 - vanilla javascript
 - jquery for dom manipulation
 - national park service api
 - html5 & css3
+- responsive design
