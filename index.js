@@ -12,18 +12,42 @@ function formatQueryParams(params) {
   return queryItems.join('&')
 }
 
+//show loading state
+function showLoading() {
+  $('#js-error-message').empty()
+  $('#results').addClass('hidden')
+  $('#js-form input[type="submit"]').prop('disabled', true).val('Searching...')
+}
+
+//hide loading state
+function hideLoading() {
+  $('#js-form input[type="submit"]').prop('disabled', false).val('Search')
+}
+
 //display results in DOM
 function displayResults(responseJson, maxResults) {
-  console.log(responseJson)
   $('#results-list').empty()
   $('#js-error-message').empty()
-  for (
-    let i = 0;
-    (i < responseJson.data.length) & (i < responseJson.limit);
-    i++
-  ) {
+
+  if (!responseJson.data || responseJson.data.length === 0) {
+    $('#js-error-message').text(
+      'No parks found for the specified states. Please try different state codes.'
+    )
+    return
+  }
+
+  for (let i = 0; i < responseJson.data.length && i < responseJson.limit; i++) {
+    const park = responseJson.data[i]
+    const address =
+      park.addresses && park.addresses[1] ? park.addresses[1] : null
+
+    let addressHtml = ''
+    if (address) {
+      addressHtml = `<address>${address.line1}<br>${address.city}, ${address.stateCode} ${address.postalCode}</address>`
+    }
+
     $('#results-list').append(
-      `<li><h3>${responseJson.data[i].fullName}</h3><p>${responseJson.data[i].description}</p><a href="${responseJson.data[i].url}" target="_blank">${responseJson.data[i].url}</a><address>${responseJson.data[i].addresses[1].line1}<br>${responseJson.data[i].addresses[1].city}, ${responseJson.data[i].addresses[1].stateCode} ${responseJson.data[i].addresses[1].postalCode}</address>`
+      `<li><h3>${park.fullName}</h3><p>${park.description}</p><a href="${park.url}" target="_blank" rel="noopener">${park.url}</a>${addressHtml}</li>`
     )
   }
   $('#results').removeClass('hidden')
@@ -40,27 +64,106 @@ function getNatParkList(query, maxResults) {
   const queryString = formatQueryParams(params)
   const url = searchURL + '?' + queryString
 
-  console.log(url)
-
   fetch(url)
     .then((response) => {
       if (response.ok) {
         return response.json()
       }
-      throw new Error(response.message)
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`)
     })
-    .then((responseJson) => displayResults(responseJson))
+    .then((responseJson) => displayResults(responseJson, maxResults))
     .catch((error) => {
       $('#js-error-message').text(`Something went wrong: ${error.message}`)
     })
+    .finally(() => {
+      hideLoading()
+    })
+}
+
+//validate state codes
+function validateStateCodes(codes) {
+  const validStates = [
+    'AL',
+    'AK',
+    'AZ',
+    'AR',
+    'CA',
+    'CO',
+    'CT',
+    'DE',
+    'FL',
+    'GA',
+    'HI',
+    'ID',
+    'IL',
+    'IN',
+    'IA',
+    'KS',
+    'KY',
+    'LA',
+    'ME',
+    'MD',
+    'MA',
+    'MI',
+    'MN',
+    'MS',
+    'MO',
+    'MT',
+    'NE',
+    'NV',
+    'NH',
+    'NJ',
+    'NM',
+    'NY',
+    'NC',
+    'ND',
+    'OH',
+    'OK',
+    'OR',
+    'PA',
+    'RI',
+    'SC',
+    'SD',
+    'TN',
+    'TX',
+    'UT',
+    'VT',
+    'VA',
+    'WA',
+    'WV',
+    'WI',
+    'WY',
+  ]
+  const inputCodes = codes.split(',').map((code) => code.trim().toUpperCase())
+  const invalidCodes = inputCodes.filter((code) => !validStates.includes(code))
+
+  if (invalidCodes.length > 0) {
+    return `Invalid state codes: ${invalidCodes.join(
+      ', '
+    )}. Please use valid 2-letter state codes.`
+  }
+  return null
 }
 
 //listen for submit
 function watchForm() {
   $('#js-form').submit((event) => {
     event.preventDefault()
-    const searchTerm = $('#js-state-park-search').val()
+    const searchTerm = $('#js-state-park-search').val().trim()
     const maxResults = $('#js-max-results').val()
+
+    if (!searchTerm) {
+      $('#js-error-message').text('Please enter at least one state code.')
+      return
+    }
+
+    const validationError = validateStateCodes(searchTerm)
+    if (validationError) {
+      $('#js-error-message').text(validationError)
+      return
+    }
+
+    showLoading()
     getNatParkList(searchTerm, maxResults)
   })
 }

@@ -70,6 +70,8 @@ input[type='submit'] {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   align-self: center;
   margin-top: 10px;
+  width: 140px;
+  min-width: 140px;
 }
 
 input[type='submit']:hover {
@@ -242,5 +244,36 @@ address {
     max-height: none;
     overflow-y: visible;
     padding: 0 15px 15px 15px;
+  }
+}
+
+/* accessibility improvements */
+input:focus,
+button:focus {
+  outline: 2px solid #27ae60;
+  outline-offset: 2px;
+}
+
+/* reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* high contrast mode support */
+@media (prefers-contrast: high) {
+  body {
+    background: white;
+  }
+
+  .container {
+    border: 2px solid black;
+  }
+
+  input {
+    border: 2px solid black;
   }
 }
