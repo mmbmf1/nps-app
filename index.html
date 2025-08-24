@@ -24,14 +24,18 @@
           placeholder="e.g. AZ,CA"
           required
         />
-        <label for="max-results">Max results to display:</label>
-        <input
-          type="number"
-          name="max-results"
-          id="js-max-results"
-          value="10"
-        />
-        <input type="submit" value="Search" />
+        <div class="input-group">
+          <div>
+            <label for="max-results">Max results to display:</label>
+            <input
+              type="number"
+              name="max-results"
+              id="js-max-results"
+              value="10"
+            />
+          </div>
+          <input type="submit" value="Search" />
+        </div>
       </form>
       <p id="js-error-message" class="error-message"></p>
       <section id="results" class="hidden">
