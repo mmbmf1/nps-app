@@ -1,122 +1,313 @@
 * {
   box-sizing: border-box;
 }
+
 body {
-  font-family: sans-serif;
-  background: #f5f5f5;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: #f7f8f6;
   margin: 0;
   padding: 20px;
+  color: #4a5d4a;
 }
+
 .container {
   max-width: 800px;
   margin: auto;
   background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   padding: 30px;
 }
+
 h1 {
-  color: #333;
+  color: #3a4a3a;
   margin-bottom: 20px;
-}
-form {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-label {
+  font-size: 2rem;
   font-weight: 600;
+  text-align: center;
 }
-input {
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+
+.search-section {
+  background: #f9faf9;
+  border-radius: 2px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+label {
+  font-weight: 500;
+  color: #4a5d4a;
+  margin-bottom: 4px;
+  display: block;
+  font-size: 14px;
+}
+
+input[type='text'] {
+  padding: 12px;
+  border: 1px solid #d0d6d0;
+  border-radius: 2px;
   font-size: 16px;
+  width: 100%;
+  transition: border-color 0.2s ease;
+  background: white;
 }
-input:focus {
+
+input[type='text']:focus {
   outline: none;
-  border-color: #27ae60;
+  border-color: #6b8e6b;
+  box-shadow: 0 0 0 2px rgba(107, 142, 107, 0.1);
 }
+
 input[type='number'] {
+  padding: 8px;
+  border: 1px solid #d0d6d0;
+  border-radius: 2px;
+  font-size: 16px;
   max-width: 80px;
+  transition: border-color 0.2s ease;
+  background: white;
 }
+
+input[type='number']:focus {
+  outline: none;
+  border-color: #6b8e6b;
+  box-shadow: 0 0 0 2px rgba(107, 142, 107, 0.1);
+}
+
 input[type='submit'] {
-  background: #2c3e50;
+  background: #6b8e6b;
   color: white;
   border: none;
-  padding: 12px 24px;
-  border-radius: 4px;
+  padding: 12px 20px;
+  border-radius: 2px;
   cursor: pointer;
-  width: 120px;
+  font-size: 16px;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
 }
-.error-message {
-  color: red;
-  text-align: center;
-  display: none;
+
+input[type='submit']:hover {
+  background: #5a7a5a;
 }
-.error-message:not(:empty) {
-  display: block;
+
+input[type='submit']:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
-.hidden {
-  display: none;
+
+.advanced-search {
+  margin: 15px 0;
+  background: #f9faf9;
+  border-radius: 2px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
-#results {
-  margin-top: 20px;
+
+.advanced-search summary {
+  padding: 12px 15px;
+  background: transparent;
+  cursor: pointer;
+  font-weight: 500;
+  color: #4a5d4a;
+  transition: background-color 0.2s ease;
 }
-ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+
+.advanced-search summary:hover {
+  background: #f2f4f2;
 }
-li {
-  background: #f8f9fa;
-  border-radius: 4px;
+
+.filters {
   padding: 15px;
-  margin-bottom: 10px;
-  border-left: 3px solid #27ae60;
+  display: grid;
+  gap: 15px;
+  background: transparent;
 }
-h3 {
-  margin: 0 0 8px;
-  color: #333;
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
-li p {
-  color: #666;
-  margin: 8px 0;
+
+select {
+  padding: 8px;
+  border: none;
+  border-radius: 2px;
+  font-size: 16px;
+  background: white;
+  min-height: 80px;
+  transition: box-shadow 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
-li a {
-  color: #27ae60;
+
+select:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(107, 142, 107, 0.3);
 }
-address {
-  margin-top: 10px;
-  padding-top: 10px;
-  border-top: 1px solid #eee;
-  color: #666;
-  font-style: normal;
+
+#clear-states {
+  background: #8a9a8a;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 2px;
+  cursor: pointer;
+  font-size: 14px;
+  align-self: flex-start;
+  margin-top: 4px;
+  transition: background-color 0.2s ease;
 }
+
+#clear-states:hover {
+  background: #7a8a7a;
+}
+
 .input-group {
   display: flex;
   gap: 10px;
   align-items: end;
+  margin-top: 15px;
 }
-.input-group input[type='submit'] {
+
+.error-message {
+  color: #8b6b47;
+  text-align: center;
+  display: none;
+  background: #f9f6f2;
+  border-radius: 2px;
+  padding: 8px;
+  margin: 15px 0;
+  font-size: 14px;
+}
+
+.error-message:not(:empty) {
+  display: block;
+}
+
+.hidden {
+  display: none;
+}
+
+#results {
+  margin-top: 20px;
+}
+
+#results h2 {
+  color: #3a4a3a;
+  margin-bottom: 15px;
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
   margin: 0;
+  display: grid;
+  gap: 10px;
 }
+
+li {
+  background: white;
+  border-radius: 2px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: all 0.2s ease;
+  border-left: 3px solid #6b8e6b;
+}
+
+li:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+h3 {
+  margin: 0 0 6px;
+  color: #3a4a3a;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+li p {
+  color: #5a6a5a;
+  margin: 6px 0;
+  line-height: 1.4;
+  font-size: 14px;
+}
+
+li a {
+  color: #6b8e6b;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+li a:hover {
+  color: #5a7a5a;
+  text-decoration: underline;
+}
+
+address {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #e8ebe8;
+  color: #5a6a5a;
+  font-style: normal;
+  font-size: 13px;
+}
+
 @media (max-width: 768px) {
+  body {
+    padding: 10px;
+  }
+
   .container {
-    margin: 10px;
+    margin: 0;
     padding: 20px;
   }
+
+  h1 {
+    font-size: 1.6rem;
+  }
+
+  .search-section {
+    padding: 15px;
+  }
+
   .input-group {
     flex-direction: column;
     align-items: stretch;
   }
+
   .input-group input[type='submit'] {
     align-self: flex-start;
     margin-top: 10px;
   }
-  .input-group > div input[type='number'] {
-    max-width: 80px;
-    padding: 8px;
+
+  .filters {
+    padding: 15px;
+  }
+
+  li {
+    padding: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 15px;
+  }
+
+  .search-section {
+    padding: 12px;
+  }
+
+  h1 {
+    font-size: 1.4rem;
+  }
+
+  input[type='text'],
+  input[type='number'],
+  select {
+    font-size: 16px;
   }
 }
