@@ -173,7 +173,7 @@ function validateStateCodes(codes) {
 function watchForm() {
   $('#js-form').submit((event) => {
     event.preventDefault()
-    const searchTerm = $('#js-state-park-search').val().trim()
+    const searchTerm = $('#js-basic-search').val().trim()
     const maxResults = $('#js-max-results').val()
 
     if (!searchTerm) {
@@ -194,7 +194,7 @@ function watchForm() {
   $(document).on('keydown', function (event) {
     if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
       event.preventDefault()
-      $('#js-state-park-search').focus()
+      $('#js-basic-search').focus()
     }
   })
 }
