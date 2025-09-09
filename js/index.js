@@ -34,34 +34,13 @@ function displayResults(responseJson, maxResults, requestedStates) {
 
   if (!responseJson.data || responseJson.data.length === 0) {
     $('#js-error-message').text(
-      'No parks found for the specified states. Please try different state codes.'
+      'No parks found for the specified search terms. Please try different search terms.'
     )
     return
   }
 
-  // Filter results to only show parks from the requested states
-  const requestedStateCodes = requestedStates
-    .split(',')
-    .map((code) => code.trim().toUpperCase())
-  const filteredParks = responseJson.data.filter((park) => {
-    // Check if the park has addresses and if any address is in the requested states
-    if (park.addresses && park.addresses.length > 0) {
-      return park.addresses.some((address) =>
-        requestedStateCodes.includes(address.stateCode)
-      )
-    }
-    return false
-  })
-
-  if (filteredParks.length === 0) {
-    $('#js-error-message').text(
-      'No parks found for the specified states. Please try different state codes.'
-    )
-    return
-  }
-
-  for (let i = 0; i < filteredParks.length && i < maxResults; i++) {
-    const park = filteredParks[i]
+  for (let i = 0; i < responseJson.data.length && i < maxResults; i++) {
+    const park = responseJson.data[i]
     const address =
       park.addresses && park.addresses[1] ? park.addresses[1] : null
 
@@ -79,116 +58,115 @@ function displayResults(responseJson, maxResults, requestedStates) {
 
 //  GET query & response from API
 function getNatParkList(query, maxResults) {
-  const params = {
-    stateCode: query,
-    limit: maxResults,
-    fields: 'addresses',
-    api_key: API_KEY,
-  }
-  const queryString = formatQueryParams(params)
-  const url = searchURL + '?' + queryString
+  // Get selected states from dropdown
+  const selectedStates = []
+  $('#state-filter option:selected').each(function () {
+    selectedStates.push($(this).val())
+  })
 
-  fetch(url)
-    .then((response) => {
-      if (response.ok) {
-        return response.json()
+  // If states are selected, use stateCode parameter with search term
+  if (selectedStates.length > 0) {
+    // Make separate API calls for each selected state
+    const promises = selectedStates.map((stateCode) => {
+      const params = {
+        stateCode: stateCode,
+        q: query,
+        limit: maxResults,
+        fields: 'addresses',
+        sort: '-relevanceScore',
+        api_key: API_KEY,
       }
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`)
-    })
-    .then((responseJson) => displayResults(responseJson, maxResults, query))
-    .catch((error) => {
-      $('#js-error-message').text(`Something went wrong: ${error.message}`)
-    })
-    .finally(() => {
-      hideLoading()
-    })
-}
+      const queryString = formatQueryParams(params)
+      const url = searchURL + '?' + queryString
 
-// validate state codes
-function validateStateCodes(codes) {
-  const validStates = [
-    'AL',
-    'AK',
-    'AZ',
-    'AR',
-    'CA',
-    'CO',
-    'CT',
-    'DE',
-    'FL',
-    'GA',
-    'HI',
-    'ID',
-    'IL',
-    'IN',
-    'IA',
-    'KS',
-    'KY',
-    'LA',
-    'ME',
-    'MD',
-    'MA',
-    'MI',
-    'MN',
-    'MS',
-    'MO',
-    'MT',
-    'NE',
-    'NV',
-    'NH',
-    'NJ',
-    'NM',
-    'NY',
-    'NC',
-    'ND',
-    'OH',
-    'OK',
-    'OR',
-    'PA',
-    'RI',
-    'SC',
-    'SD',
-    'TN',
-    'TX',
-    'UT',
-    'VT',
-    'VA',
-    'WA',
-    'WV',
-    'WI',
-    'WY',
-  ]
-  const inputCodes = codes.split(',').map((code) => code.trim().toUpperCase())
-  const invalidCodes = inputCodes.filter((code) => !validStates.includes(code))
+      return fetch(url).then((response) => {
+        if (response.ok) {
+          return response.json()
+        }
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+      })
+    })
 
-  if (invalidCodes.length > 0) {
-    return `Invalid state codes: ${invalidCodes.join(
-      ', '
-    )}. Please use valid 2-letter state codes.`
+    Promise.all(promises)
+      .then((responses) => {
+        // Combine all results and remove duplicates
+        const allParks = []
+        responses.forEach((response) => {
+          if (response.data) {
+            allParks.push(...response.data)
+          }
+        })
+
+        // Sort combined results by relevance score
+        const uniqueParks = allParks
+          .filter(
+            (park, index, self) =>
+              index === self.findIndex((p) => p.id === park.id)
+          )
+          .sort((a, b) => (b.relevanceScore || 0) - (a.relevanceScore || 0))
+          .slice(0, maxResults)
+
+        const combinedResponse = { data: uniqueParks }
+        displayResults(combinedResponse, maxResults, query)
+      })
+      .catch((error) => {
+        $('#js-error-message').text(`Something went wrong: ${error.message}`)
+      })
+      .finally(() => {
+        hideLoading()
+      })
+  } else {
+    // No states selected, use q parameter for general search
+    const params = {
+      q: query,
+      limit: maxResults,
+      fields: 'addresses',
+      sort: '-relevanceScore',
+      api_key: API_KEY,
+    }
+
+    const queryString = formatQueryParams(params)
+    const url = searchURL + '?' + queryString
+
+    fetch(url)
+      .then((response) => {
+        if (response.ok) {
+          return response.json()
+        }
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+      })
+      .then((responseJson) => {
+        displayResults(responseJson, maxResults, query)
+      })
+      .catch((error) => {
+        $('#js-error-message').text(`Something went wrong: ${error.message}`)
+      })
+      .finally(() => {
+        hideLoading()
+      })
   }
-  return null
 }
 
 // listen for submit
 function watchForm() {
   $('#js-form').submit((event) => {
     event.preventDefault()
+
     const searchTerm = $('#js-basic-search').val().trim()
     const maxResults = $('#js-max-results').val()
 
     if (!searchTerm) {
-      $('#js-error-message').text('Please enter at least one state code.')
-      return
-    }
-
-    const validationError = validateStateCodes(searchTerm)
-    if (validationError) {
-      $('#js-error-message').text(validationError)
+      $('#js-error-message').text('Please enter a search term.')
       return
     }
 
     showLoading()
     getNatParkList(searchTerm, maxResults)
+  })
+
+  // Clear states button
+  $('#clear-states').click(() => {
+    $('#state-filter option:selected').prop('selected', false)
   })
 
   $(document).on('keydown', function (event) {
