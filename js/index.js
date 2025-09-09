@@ -1,7 +1,10 @@
 'use strict'
 
 // load configuration - Vercel will replace this
-const API_KEY = '%%NPS_API_KEY%%' || config.NPS_API_KEY
+const API_KEY =
+  typeof process !== 'undefined' && process.env.NODE_ENV === 'production'
+    ? '%%NPS_API_KEY%%' // Will be replaced by build script in production
+    : config.NPS_API_KEY // Use local config for development
 const searchURL = 'https://developer.nps.gov/api/v1/parks'
 
 // format query search
