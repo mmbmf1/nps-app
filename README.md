@@ -1,45 +1,41 @@
 # national park service app
 
-a simple web app to search for national parks by state using the national park service api.
+search for national parks by name, activity, or location.
 
 **[live demo](https://nps-app-xi.vercel.app/)**
 
 ## what it does
 
-- search for national parks by entering state codes (e.g., AZ, CA, NY)
-- displays park names, descriptions, websites, and addresses
-- limit the number of results shown
-- clean, responsive interface
-- mobile-friendly design
+search for parks by typing anything - park names, activities like "hiking", or locations like "colorado". optionally filter by specific states.
+
+## features
+
+- **smart search**: find parks by name, activity, or location
+- **advanced filtering**: multi-select state filtering with clear button
+- **relevance sorting**: results sorted by relevance score
+- **responsive design**: works on desktop and mobile
+- **keyboard shortcuts**: cmd+k to focus search input
+- **loading states**: visual feedback during searches
+- **error handling**: specific error messages and validation
 
 ## setup
 
 1. get a free api key from [nps.gov](https://www.nps.gov/subjects/developer/get-started.htm)
 2. copy `js/config.example.js` to `js/config.js`
-3. replace `your_api_key_here` with your actual api key
-4. open `index.html` in your browser
+3. add your api key
+4. open `index.html`
 
 ## usage
 
-1. enter state codes separated by commas (e.g., `AZ,CA,TX`)
-2. set max results (default: 10)
-3. click search
-4. browse the results
+type what you're looking for and hit search. use the advanced filters if you want to narrow down by state.
 
-## features
+## examples
 
-- responsive design that works on desktop and mobile
-- input validation for state codes
-- loading states and error handling
-- accessible design with keyboard navigation
-- clean, modern ui with natural color scheme
-- keyboard shortcut: Cmd+K to focus search input
+- search "hiking" to find all parks with hiking trails
+- search "yellowstone" to find yellowstone national park
+- search "colorado" to find all parks in colorado
+- use advanced filters to search "hiking" in specific states
 
 ## tech
 
-- vanilla javascript
-- jquery for dom manipulation
-- national park service api
-- html5 & css3
-- responsive design
-- vercel deployment with secure api key management
+vanilla js, jquery, nps api
