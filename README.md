@@ -39,3 +39,46 @@ type what you're looking for and hit search. use the advanced filters if you wan
 ## tech
 
 vanilla js, jquery, nps api
+
+---
+
+# development roadmap
+
+## phase 1: core functionality ✅ complete
+
+- enhanced search with basic + advanced filtering
+- better error handling and user feedback
+- performance optimization
+
+## phase 2: user experience polish 🎨 current
+
+- **map integration with mapbox** (priority!)
+  - map-focused layout with search panel
+  - park pins with click interactions
+  - search results sync with map view
+- responsive design improvements
+- accessibility enhancements
+
+## phase 3: smart features 🔮 future
+
+- **comprehensive nps api integration**
+  - park news and updates
+  - events and programs
+  - alerts and closures
+  - amenities and facilities
+  - live webcams
+  - park articles and stories
+- **dynamic hashtag suggestions**
+  - analyze search results to generate relevant hashtags
+  - show clickable filtering options based on actual results
+  - contextual filtering that adapts to your search
+- search suggestions and autocomplete
+- park details modal/page
+- search history and favorites
+
+## phase 4: polish & optimization 🔧 future
+
+- better styling (outdoor minimalist design)
+- pagination for large result sets
+- performance optimizations
+- advanced responsive design
