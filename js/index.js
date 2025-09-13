@@ -23,6 +23,52 @@ window.addEventListener('resize', () => {
 const API_KEY = config.NPS_API_KEY
 const searchURL = 'https://developer.nps.gov/api/v1/parks'
 
+// Clear existing markers
+function clearMarkers() {
+  // Remove all existing markers
+  const markers = document.querySelectorAll('.mapboxgl-marker')
+  markers.forEach((marker) => marker.remove())
+}
+
+// Add park markers to map
+function addParkMarkers(parks) {
+  clearMarkers()
+
+  parks.forEach((park) => {
+    // Use latLong field if available
+    if (park.latLong) {
+      // Parse "lat:44.59824417, long:-110.5471695" format
+      const coords = park.latLong.split(', ')
+      const lat = parseFloat(coords[0].split(':')[1])
+      const lng = parseFloat(coords[1].split(':')[1])
+
+      // Create marker
+      const marker = new mapboxgl.Marker()
+        .setLngLat([lng, lat])
+        .setPopup(
+          new mapboxgl.Popup().setHTML(
+            `<h3>${park.fullName}</h3><p>${park.description}</p>`
+          )
+        )
+        .addTo(map)
+    }
+  })
+
+  // Fit map to show all markers if we have any
+  if (parks.length > 0) {
+    const bounds = new mapboxgl.LngLatBounds()
+    parks.forEach((park) => {
+      if (park.latLong) {
+        const coords = park.latLong.split(', ')
+        const lat = parseFloat(coords[0].split(':')[1])
+        const lng = parseFloat(coords[1].split(':')[1])
+        bounds.extend([lng, lat])
+      }
+    })
+    map.fitBounds(bounds, { padding: 50 })
+  }
+}
+
 // format query search
 function formatQueryParams(params) {
   const queryItems = Object.keys(params).map(
@@ -54,6 +100,9 @@ function displayResults(responseJson, maxResults, requestedStates) {
     )
     return
   }
+
+  // Add markers to map
+  addParkMarkers(responseJson.data)
 
   for (let i = 0; i < responseJson.data.length && i < maxResults; i++) {
     const park = responseJson.data[i]
@@ -193,4 +242,16 @@ function watchForm() {
   })
 }
 
+// Populate states dropdown
+function populateStatesDropdown() {
+  const stateFilter = document.getElementById('state-filter')
+  STATES.forEach((state) => {
+    const option = document.createElement('option')
+    option.value = state.value
+    option.textContent = state.text
+    stateFilter.appendChild(option)
+  })
+}
+
 $(watchForm)
+$(populateStatesDropdown)
