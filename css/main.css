@@ -329,3 +329,45 @@ address {
     font-size: 16px;
   }
 }
+
+@media (max-width: 768px) {
+  .app-container {
+    flex-direction: column;
+    height: auto;
+    min-height: 100vh;
+  }
+
+  .map-section {
+    height: 50vh;
+    min-height: 300px;
+  }
+
+  .search-section {
+    width: 100%;
+    border-left: none;
+    border-top: 1px solid #e0e6e0;
+  }
+
+  .search-panel {
+    padding: 15px;
+  }
+
+  h1 {
+    font-size: 1.3rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .map-section {
+    height: 40vh;
+    min-height: 250px;
+  }
+
+  .search-panel {
+    padding: 12px;
+  }
+
+  h1 {
+    font-size: 1.2rem;
+  }
+}
