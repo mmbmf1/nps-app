@@ -334,8 +334,9 @@ address {
 
 .alert-header {
   display: flex;
-  align-items: center;
-  gap: 8px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
   margin-bottom: 8px;
 }
 
@@ -352,6 +353,7 @@ address {
   margin: 0;
   font-size: 14px;
   font-weight: 600;
+  text-align: left;
 }
 
 .alert-description {
@@ -359,6 +361,7 @@ address {
   font-size: 13px;
   line-height: 1.4;
   color: #666;
+  text-align: left;
 }
 
 .alert-link {

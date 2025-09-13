@@ -67,7 +67,7 @@ function addParkMarkers(parks) {
 
         // update popup content
         marker.getPopup().setHTML(`
-          <h3>${park.fullName}</h3>
+          <h3>alerts</h3>
           ${alertsHtml}
         `)
       })
