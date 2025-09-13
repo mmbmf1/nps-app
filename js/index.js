@@ -12,7 +12,12 @@ const map = new mapboxgl.Map({
 })
 
 // add navigation controls
-map.addControl(new mapboxgl.NavigationControl())
+map.addControl(
+  new mapboxgl.NavigationControl({
+    showZoom: false,
+    showCompass: true,
+  })
+)
 
 // handle window resize
 window.addEventListener('resize', () => {
@@ -54,6 +59,8 @@ function addParkMarkers(parks) {
           new mapboxgl.Popup({
             maxWidth: '400px',
             className: 'custom-popup',
+            anchor: 'top',
+            closeButton: false,
           }).setHTML(`<h3>${park.fullName}</h3><p>loading alerts...</p>`)
         )
         .addTo(map)

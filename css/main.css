@@ -323,6 +323,7 @@ address {
   border-radius: 8px !important;
   width: 400px !important;
   max-width: 400px !important;
+  max-height: 400px !important;
 }
 
 .custom-popup .mapboxgl-popup-content-wrapper {
@@ -334,9 +335,12 @@ address {
   max-height: 300px;
   overflow-y: auto;
   margin: 0;
-  padding: 15px;
+  padding: 0px 4px 4px 4px;
   width: 100%;
   box-sizing: border-box;
+  position: relative;
+  border-radius: 8px;
+  z-index: 1;
 }
 
 .alert-item {
@@ -477,25 +481,67 @@ address {
   width: 100%;
 }
 
+/* hide mapbox branding */
+.mapboxgl-ctrl-logo {
+  display: none !important;
+}
+
+.mapboxgl-ctrl-attrib {
+  display: none !important;
+}
+
+/* make tab menu sticky with proper height */
+.tab-menu {
+  position: sticky !important;
+  top: 0 !important;
+  background: white !important;
+  z-index: 10 !important;
+  border-bottom: 1px solid #e0e6e0 !important;
+  margin: 0 !important;
+  padding: 8px 15px !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+  min-height: 40px !important;
+}
+
+/* ensure alerts container starts below sticky nav */
+.alerts-container {
+  max-height: 300px;
+  overflow-y: auto;
+  margin: 0;
+  /* padding: 0px 15px 15px 15px; */
+  width: 100%;
+  box-sizing: border-box;
+  position: relative;
+  z-index: 1;
+  margin-top: 0 !important;
+}
+
+/* add top padding to alerts list to account for sticky nav */
+.alerts-list {
+  padding-top: 0 !important;
+  margin-top: 0 !important;
+}
+
+/* ensure first alert has proper spacing */
+.alert-item:first-child {
+  margin-top: 0 !important;
+}
+
+/* mobile responsive styles for map layout */
 @media (max-width: 768px) {
   .app-container {
     flex-direction: column;
     height: 100vh;
   }
-
   .map-section {
     height: 50vh;
     min-height: 300px;
     flex-shrink: 0;
-    background: #e8ebe8; /* Fallback background */
   }
-
   #map {
-    width: 100%;
     height: 100%;
-    min-height: 300px; /* Ensure minimum height */
+    min-height: 300px;
   }
-
   .search-section {
     width: 100%;
     border-left: none;
@@ -503,13 +549,53 @@ address {
     flex: 1;
     overflow-y: auto;
   }
-
   .search-panel {
     padding: 15px;
   }
-
   h1 {
     font-size: 1.3rem;
+  }
+
+  /* mobile popup styling */
+  .custom-popup .mapboxgl-popup-content {
+    width: 90vw !important;
+    max-width: 90vw !important;
+    max-height: 200px !important;
+  }
+
+  .alerts-container {
+    max-height: 150px !important;
+    /* padding: 0px 10px 10px 10px !important; */
+  }
+
+  .tab-menu {
+    flex-wrap: wrap;
+    gap: 2px;
+  }
+
+  .tab {
+    padding: 6px 8px;
+    font-size: 12px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .alert-item {
+    margin-bottom: 6px !important;
+  }
+
+  .alert-header {
+    padding: 6px !important;
+  }
+
+  .alert-title {
+    font-size: 12px !important;
+    line-height: 1.2 !important;
+  }
+
+  .alert-description {
+    font-size: 11px !important;
+    line-height: 1.2 !important;
   }
 }
 
@@ -518,12 +604,32 @@ address {
     height: 40vh;
     min-height: 250px;
   }
-
   .search-panel {
     padding: 12px;
   }
-
   h1 {
     font-size: 1.2rem;
+  }
+
+  /* even smaller mobile popup */
+  .custom-popup .mapboxgl-popup-content {
+    width: 95vw !important;
+    max-width: 95vw !important;
+    max-height: 180px !important;
+  }
+
+  .alerts-container {
+    max-height: 130px !important;
+    /* padding: 0px 8px 8px 8px !important; */
+  }
+
+  .tab {
+    padding: 4px 6px;
+    font-size: 11px;
+  }
+
+  /* mobile sticky tabs */
+  .tab-menu {
+    padding: 0 8px !important;
   }
 }
