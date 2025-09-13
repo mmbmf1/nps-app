@@ -171,7 +171,18 @@ function formatAlerts(alerts) {
   if (!alerts || alerts.length === 0) {
     html += '<p>no current alerts</p>'
   } else {
-    alerts.forEach((alert, index) => {
+    // sort alerts by priority
+    const sortedAlerts = alerts.sort((a, b) => {
+      const priorityOrder = {
+        Danger: 1,
+        'Park Closure': 2,
+        Caution: 3,
+        Information: 4,
+      }
+      return (priorityOrder[a.category] || 5) - (priorityOrder[b.category] || 5)
+    })
+
+    sortedAlerts.forEach((alert, index) => {
       const categoryClass = alert.category.toLowerCase().replace(/\s+/g, '-')
 
       // only show view full alert button if there's a URL
