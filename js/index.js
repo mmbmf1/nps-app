@@ -1,10 +1,26 @@
 'use strict'
 
+// Mapbox configuration
+mapboxgl.accessToken = '%%MAPBOX_ACCESS_TOKEN%%' || config.MAPBOX_ACCESS_TOKEN
+
+// Initialize map
+const map = new mapboxgl.Map({
+  container: 'map',
+  style: 'mapbox://styles/mapbox/outdoors-v11',
+  center: [-95.7129, 37.0902],
+  zoom: 4,
+})
+
+// Add navigation controls
+map.addControl(new mapboxgl.NavigationControl())
+
+// Handle window resize
+window.addEventListener('resize', () => {
+  map.resize()
+})
+
 // load configuration - Vercel will replace this
-const API_KEY =
-  typeof process !== 'undefined' && process.env.NODE_ENV === 'production'
-    ? '%%NPS_API_KEY%%' // Will be replaced by build script in production
-    : config.NPS_API_KEY // Use local config for development
+const API_KEY = '%%NPS_API_KEY%%' || config.NPS_API_KEY
 const searchURL = 'https://developer.nps.gov/api/v1/parks'
 
 // format query search
