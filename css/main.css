@@ -411,6 +411,11 @@ address {
   font-size: 12px;
   color: #3b82f6;
   text-decoration: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
 }
 
 .alert-link:hover {

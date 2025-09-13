@@ -171,8 +171,14 @@ function formatAlerts(alerts) {
   if (!alerts || alerts.length === 0) {
     html += '<p>no current alerts</p>'
   } else {
-    alerts.forEach((alert) => {
+    alerts.forEach((alert, index) => {
       const categoryClass = alert.category.toLowerCase().replace(/\s+/g, '-')
+
+      // only show view full alert button if there's a URL
+      const viewFullAlertButton = alert.url
+        ? `<button class="alert-link" onclick="openAlertUrl('${alert.url}')">view full alert</button>`
+        : ''
+
       html += `
         <div class="alert-item ${categoryClass}">
           <div class="alert-header" onclick="toggleAlert(this)">
@@ -182,7 +188,7 @@ function formatAlerts(alerts) {
           </div>
           <div class="alert-content" style="display: none;">
             <p class="alert-description">${alert.description}</p>
-            <a href="${alert.url}" target="_blank" class="alert-link">view full alert</a>
+            ${viewFullAlertButton}
           </div>
         </div>
       `
@@ -202,6 +208,16 @@ function formatAlerts(alerts) {
     </div>
   </div>`
   return html
+}
+
+// function to open alert URLs
+function openAlertUrl(url) {
+  console.log('Opening URL:', url)
+  if (url && url !== '#') {
+    window.open(url, '_blank', 'noopener,noreferrer')
+  } else {
+    console.log('No valid URL provided')
+  }
 }
 
 // handle tab switching
