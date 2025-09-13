@@ -274,6 +274,30 @@ address {
   font-size: 13px;
 }
 
+/* Search result highlights */
+.search-result-item {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+
+.search-result-item:hover {
+  background-color: #f0f4f0;
+}
+
+.search-result-item.highlighted {
+  background-color: #e8f5e8 !important;
+  border-left: 4px solid #6b8e6b !important;
+}
+
+/* Marker highlights */
+.highlighted-marker {
+  transform: scale(1.2);
+  z-index: 1000;
+}
+
 @media (max-width: 768px) {
   .app-container {
     flex-direction: column;

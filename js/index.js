@@ -23,18 +23,23 @@ window.addEventListener('resize', () => {
 const API_KEY = config.NPS_API_KEY
 const searchURL = 'https://developer.nps.gov/api/v1/parks'
 
+// Store markers and results for click events
+let currentMarkers = []
+let currentResults = []
+
 // Clear existing markers
 function clearMarkers() {
   // Remove all existing markers
   const markers = document.querySelectorAll('.mapboxgl-marker')
   markers.forEach((marker) => marker.remove())
+  currentMarkers = []
 }
 
 // Add park markers to map
 function addParkMarkers(parks) {
   clearMarkers()
 
-  parks.forEach((park) => {
+  parks.forEach((park, index) => {
     // Use latLong field if available
     if (park.latLong) {
       // Parse "lat:44.59824417, long:-110.5471695" format
@@ -47,10 +52,18 @@ function addParkMarkers(parks) {
         .setLngLat([lng, lat])
         .setPopup(
           new mapboxgl.Popup().setHTML(
-            `<h3>${park.fullName}</h3><p>${park.description}</p>`
+            `<h3>${park.fullName}</h3><p>Coming soon: Park details, news, and more!</p>`
           )
         )
         .addTo(map)
+
+      // Add click event to marker
+      marker.getElement().addEventListener('click', () => {
+        highlightSearchResult(index)
+      })
+
+      // Store marker with index
+      currentMarkers.push({ marker, index })
     }
   })
 
@@ -66,6 +79,51 @@ function addParkMarkers(parks) {
       }
     })
     map.fitBounds(bounds, { padding: 50 })
+  }
+}
+
+// Highlight search result when marker is clicked
+function highlightSearchResult(index) {
+  // Remove previous highlights
+  document.querySelectorAll('.search-result-item').forEach((item) => {
+    item.classList.remove('highlighted')
+  })
+
+  // Highlight the selected result
+  const resultItems = document.querySelectorAll('.search-result-item')
+  if (resultItems[index]) {
+    resultItems[index].classList.add('highlighted')
+    resultItems[index].scrollIntoView({ behavior: 'smooth', block: 'center' })
+  }
+}
+
+// Highlight marker when search result is clicked
+function highlightMarker(index) {
+  // Remove previous highlights from search results
+  document.querySelectorAll('.search-result-item').forEach((item) => {
+    item.classList.remove('highlighted')
+  })
+
+  // Remove previous highlights from markers
+  currentMarkers.forEach(({ marker }) => {
+    marker.getElement().classList.remove('highlighted-marker')
+  })
+
+  // Highlight the selected marker
+  if (currentMarkers[index]) {
+    currentMarkers[index].marker
+      .getElement()
+      .classList.add('highlighted-marker')
+
+    // Center map on the marker
+    const coords = currentMarkers[index].marker.getLngLat()
+    map.flyTo({ center: coords, zoom: Math.max(map.getZoom(), 10) })
+  }
+
+  // Highlight the selected search result
+  const resultItems = document.querySelectorAll('.search-result-item')
+  if (resultItems[index]) {
+    resultItems[index].classList.add('highlighted')
   }
 }
 
@@ -101,6 +159,9 @@ function displayResults(responseJson, maxResults, requestedStates) {
     return
   }
 
+  // Store current results
+  currentResults = responseJson.data
+
   // Add markers to map
   addParkMarkers(responseJson.data)
 
@@ -114,9 +175,22 @@ function displayResults(responseJson, maxResults, requestedStates) {
       addressHtml = `<address>${address.line1}<br>${address.city}, ${address.stateCode} ${address.postalCode}</address>`
     }
 
-    $('#results-list').append(
-      `<li><h3>${park.fullName}</h3><p>${park.description}</p><a href="${park.url}" target="_blank" rel="noopener">${park.url}</a>${addressHtml}</li>`
-    )
+    // Create clickable result item
+    const resultItem = $(`
+      <li class="search-result-item" data-index="${i}">
+        <h3>${park.fullName}</h3>
+        <p>${park.description}</p>
+        <a href="${park.url}" target="_blank" rel="noopener">${park.url}</a>
+        ${addressHtml}
+      </li>
+    `)
+
+    // Add click event to result item
+    resultItem.on('click', () => {
+      highlightMarker(i)
+    })
+
+    $('#results-list').append(resultItem)
   }
   $('#results').removeClass('hidden')
 }
