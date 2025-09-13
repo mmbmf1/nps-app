@@ -35,6 +35,51 @@ function clearMarkers() {
   currentMarkers = []
 }
 
+// Fetch alerts for a specific park
+async function fetchParkAlerts(parkCode) {
+  try {
+    const response = await fetch(
+      `https://developer.nps.gov/api/v1/alerts?parkCode=${parkCode}&api_key=${API_KEY}`
+    )
+    if (response.ok) {
+      const data = await response.json()
+      return data.data || []
+    }
+    return []
+  } catch (error) {
+    console.error('Error fetching alerts:', error)
+    return []
+  }
+}
+
+// Format alerts for display
+function formatAlerts(alerts) {
+  if (!alerts || alerts.length === 0) {
+    return '<p>No current alerts</p>'
+  }
+
+  let html = '<div class="alerts-container">'
+  alerts.forEach((alert) => {
+    const categoryClass = alert.category.toLowerCase().replace(/\s+/g, '-')
+    html += `
+      <div class="alert-item ${categoryClass}">
+        <div class="alert-header">
+          <span class="alert-category">${alert.category}</span>
+          <h4 class="alert-title">${alert.title}</h4>
+        </div>
+        <p class="alert-description">${alert.description.substring(0, 150)}${
+      alert.description.length > 150 ? '...' : ''
+    }</p>
+        <a href="${
+          alert.url
+        }" target="_blank" class="alert-link">View full alert</a>
+      </div>
+    `
+  })
+  html += '</div>'
+  return html
+}
+
 // Add park markers to map
 function addParkMarkers(parks) {
   clearMarkers()
@@ -52,14 +97,24 @@ function addParkMarkers(parks) {
         .setLngLat([lng, lat])
         .setPopup(
           new mapboxgl.Popup().setHTML(
-            `<h3>${park.fullName}</h3><p>Coming soon: Park details, news, and more!</p>`
+            `<h3>${park.fullName}</h3><p>Loading alerts...</p>`
           )
         )
         .addTo(map)
 
       // Add click event to marker
-      marker.getElement().addEventListener('click', () => {
+      marker.getElement().addEventListener('click', async () => {
         highlightSearchResult(index)
+
+        // Fetch and display alerts
+        const alerts = await fetchParkAlerts(park.parkCode)
+        const alertsHtml = formatAlerts(alerts)
+
+        // Update popup content
+        marker.getPopup().setHTML(`
+          <h3>${park.fullName}</h3>
+          ${alertsHtml}
+        `)
       })
 
       // Store marker with index
