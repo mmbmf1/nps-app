@@ -307,10 +307,36 @@ address {
   text-align: left;
 }
 
+/* override mapbox popup default styling */
+.mapboxgl-popup-content {
+  padding: 0 !important;
+  border-radius: 8px !important;
+}
+
+.mapboxgl-popup-content-wrapper {
+  padding: 0 !important;
+}
+
+/* custom popup styling */
+.custom-popup .mapboxgl-popup-content {
+  padding: 0 !important;
+  border-radius: 8px !important;
+  width: 400px !important;
+  max-width: 400px !important;
+}
+
+.custom-popup .mapboxgl-popup-content-wrapper {
+  padding: 0 !important;
+}
+
+/* alerts styling */
 .alerts-container {
   max-height: 300px;
   overflow-y: auto;
-  margin-top: 10px;
+  margin: 0;
+  padding: 15px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .alert-item {
@@ -318,6 +344,8 @@ address {
   border-radius: 4px;
   border-left: 4px solid;
   overflow: hidden;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .alert-header {
@@ -330,6 +358,8 @@ address {
   transition: background-color 0.2s ease;
   text-align: left;
   position: relative;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .alert-header:hover {
@@ -338,7 +368,7 @@ address {
 
 .alert-category {
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 500;
   text-transform: uppercase;
   padding: 2px 6px;
   border-radius: 3px;
@@ -347,9 +377,11 @@ address {
 
 .alert-title {
   margin: 0;
-  font-size: 12px;
-  font-weight: 500;
+  font-size: 14px;
+  font-weight: 600;
   text-align: left;
+  width: 100%;
+  word-wrap: break-word;
 }
 
 .alert-toggle {
@@ -364,6 +396,8 @@ address {
 .alert-content {
   padding: 0 10px 10px 10px;
   text-align: left;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .alert-description {
@@ -402,6 +436,40 @@ address {
 .alert-item.information .alert-header {
   background-color: #eff6ff;
   border-left-color: #3b82f6;
+}
+
+/* tab menu styling */
+.tab-menu {
+  display: flex;
+  border-bottom: 1px solid #e0e6e0;
+  margin-bottom: 15px;
+}
+
+.tab {
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: #666;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.tab:hover {
+  color: #333;
+  background-color: #f5f5f5;
+}
+
+.tab.active {
+  color: #3b82f6;
+  border-bottom-color: #3b82f6;
+  font-weight: 600;
+}
+
+.tab-content {
+  min-height: 100px;
+  width: 100%;
 }
 
 @media (max-width: 768px) {

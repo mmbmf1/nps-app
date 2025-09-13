@@ -51,9 +51,10 @@ function addParkMarkers(parks) {
       const marker = new mapboxgl.Marker()
         .setLngLat([lng, lat])
         .setPopup(
-          new mapboxgl.Popup().setHTML(
-            `<h3>${park.fullName}</h3><p>loading alerts...</p>`
-          )
+          new mapboxgl.Popup({
+            maxWidth: '400px',
+            className: 'custom-popup',
+          }).setHTML(`<h3>${park.fullName}</h3><p>loading alerts...</p>`)
         )
         .addTo(map)
 
@@ -155,31 +156,81 @@ async function fetchParkAlerts(parkCode) {
 
 // format alerts for display
 function formatAlerts(alerts) {
+  let html = `<div class="alerts-container">
+    <div class="tab-menu">
+      <div class="tab active" data-tab="alerts">alerts (${
+        alerts ? alerts.length : 0
+      })</div>
+      <div class="tab" data-tab="events">events (0)</div>
+      <div class="tab" data-tab="news">news (0)</div>
+      <div class="tab" data-tab="amenities">amenities (0)</div>
+    </div>
+    <div class="tab-content" id="alerts-content">
+      <div class="alerts-list">`
+
   if (!alerts || alerts.length === 0) {
-    return '<p>no current alerts</p>'
+    html += '<p>no current alerts</p>'
+  } else {
+    alerts.forEach((alert) => {
+      const categoryClass = alert.category.toLowerCase().replace(/\s+/g, '-')
+      html += `
+        <div class="alert-item ${categoryClass}">
+          <div class="alert-header" onclick="toggleAlert(this)">
+            <span class="alert-category">${alert.category}</span>
+            <h4 class="alert-title">${alert.title}</h4>
+            <span class="alert-toggle">+</span>
+          </div>
+          <div class="alert-content" style="display: none;">
+            <p class="alert-description">${alert.description}</p>
+            <a href="${alert.url}" target="_blank" class="alert-link">view full alert</a>
+          </div>
+        </div>
+      `
+    })
   }
 
-  let html = `<div class="alerts-container">
-    <h3>alerts (${alerts.length})</h3>`
-
-  alerts.forEach((alert) => {
-    const categoryClass = alert.category.toLowerCase().replace(/\s+/g, '-')
-    html += `
-      <div class="alert-item ${categoryClass}">
-        <div class="alert-header" onclick="toggleAlert(this)">
-          <span class="alert-category">${alert.category}</span>
-          <h4 class="alert-title">${alert.title}</h4>
-          <span class="alert-toggle">+</span>
-        </div>
-        <div class="alert-content" style="display: none;">
-          <p class="alert-description">${alert.description}</p>
-          <a href="${alert.url}" target="_blank" class="alert-link">view full alert</a>
-        </div>
-      </div>
-    `
-  })
-  html += '</div>'
+  html += `</div>
+    </div>
+    <div class="tab-content" id="events-content" style="display: none;">
+      <p>events coming soon</p>
+    </div>
+    <div class="tab-content" id="news-content" style="display: none;">
+      <p>news coming soon</p>
+    </div>
+    <div class="tab-content" id="amenities-content" style="display: none;">
+      <p>amenities coming soon</p>
+    </div>
+  </div>`
   return html
+}
+
+// handle tab switching
+function switchTab(tabName) {
+  // hide all tab contents
+  document.querySelectorAll('.tab-content').forEach((content) => {
+    content.style.display = 'none'
+  })
+
+  // remove active class from all tabs
+  document.querySelectorAll('.tab').forEach((tab) => {
+    tab.classList.remove('active')
+  })
+
+  // show selected tab content
+  document.getElementById(`${tabName}-content`).style.display = 'block'
+
+  // add active class to selected tab
+  document.querySelector(`[data-tab="${tabName}"]`).classList.add('active')
+}
+
+// add click handlers to tabs
+function addTabHandlers() {
+  document.querySelectorAll('.tab').forEach((tab) => {
+    tab.addEventListener('click', () => {
+      const tabName = tab.getAttribute('data-tab')
+      switchTab(tabName)
+    })
+  })
 }
 
 // toggle alert expansion
@@ -398,3 +449,4 @@ function watchForm() {
 
 $(watchForm)
 $(populateStatesDropdown)
+$(addTabHandlers)
