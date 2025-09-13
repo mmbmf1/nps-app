@@ -1,9 +1,9 @@
 'use strict'
 
-// Mapbox configuration
+// mapbox configuration
 mapboxgl.accessToken = config.MAPBOX_ACCESS_TOKEN
 
-// Initialize map
+// initialize map
 const map = new mapboxgl.Map({
   container: 'map',
   style: 'mapbox://styles/mapbox/outdoors-v11',
@@ -11,31 +11,133 @@ const map = new mapboxgl.Map({
   zoom: 4,
 })
 
-// Add navigation controls
+// add navigation controls
 map.addControl(new mapboxgl.NavigationControl())
 
-// Handle window resize
+// handle window resize
 window.addEventListener('resize', () => {
   map.resize()
 })
 
-// load configuration - Vercel will replace this
+// load configuration - vercel will replace this
 const API_KEY = config.NPS_API_KEY
 const searchURL = 'https://developer.nps.gov/api/v1/parks'
 
-// Store markers and results for click events
+// store markers and results for click events
 let currentMarkers = []
 let currentResults = []
 
-// Clear existing markers
+// clear existing markers
 function clearMarkers() {
-  // Remove all existing markers
+  // remove all existing markers
   const markers = document.querySelectorAll('.mapboxgl-marker')
   markers.forEach((marker) => marker.remove())
   currentMarkers = []
 }
 
-// Fetch alerts for a specific park
+// add park markers to map
+function addParkMarkers(parks) {
+  clearMarkers()
+
+  parks.forEach((park, index) => {
+    // use latlong field if available
+    if (park.latLong) {
+      // parse "lat:44.59824417, long:-110.5471695" format
+      const coords = park.latLong.split(', ')
+      const lat = parseFloat(coords[0].split(':')[1])
+      const lng = parseFloat(coords[1].split(':')[1])
+
+      // create marker
+      const marker = new mapboxgl.Marker()
+        .setLngLat([lng, lat])
+        .setPopup(
+          new mapboxgl.Popup().setHTML(
+            `<h3>${park.fullName}</h3><p>loading alerts...</p>`
+          )
+        )
+        .addTo(map)
+
+      // add click event to marker
+      marker.getElement().addEventListener('click', async () => {
+        highlightSearchResult(index)
+
+        // fetch and display alerts
+        const alerts = await fetchParkAlerts(park.parkCode)
+        const alertsHtml = formatAlerts(alerts)
+
+        // update popup content
+        marker.getPopup().setHTML(`
+          <h3>${park.fullName}</h3>
+          ${alertsHtml}
+        `)
+      })
+
+      // store marker with index
+      currentMarkers.push({ marker, index })
+    }
+  })
+
+  // fit map to show all markers if we have any
+  if (parks.length > 0) {
+    const bounds = new mapboxgl.LngLatBounds()
+    parks.forEach((park) => {
+      if (park.latLong) {
+        const coords = park.latLong.split(', ')
+        const lat = parseFloat(coords[0].split(':')[1])
+        const lng = parseFloat(coords[1].split(':')[1])
+        bounds.extend([lng, lat])
+      }
+    })
+    map.fitBounds(bounds, { padding: 50 })
+  }
+}
+
+// highlight search result when marker is clicked
+function highlightSearchResult(index) {
+  // remove previous highlights
+  document.querySelectorAll('.search-result-item').forEach((item) => {
+    item.classList.remove('highlighted')
+  })
+
+  // highlight the selected result
+  const resultItems = document.querySelectorAll('.search-result-item')
+  if (resultItems[index]) {
+    resultItems[index].classList.add('highlighted')
+    resultItems[index].scrollIntoView({ behavior: 'smooth', block: 'center' })
+  }
+}
+
+// highlight marker when search result is clicked
+function highlightMarker(index) {
+  // remove previous highlights from search results
+  document.querySelectorAll('.search-result-item').forEach((item) => {
+    item.classList.remove('highlighted')
+  })
+
+  // remove previous highlights from markers
+  currentMarkers.forEach(({ marker }) => {
+    marker.getElement().classList.remove('highlighted-marker')
+  })
+
+  // highlight the selected marker
+  if (currentMarkers[index]) {
+    currentMarkers[index].marker
+      .getElement()
+      .classList.add('highlighted-marker')
+
+    // center map on the marker
+    const coords = currentMarkers[index].marker.getLngLat()
+    map.flyTo({ center: coords, zoom: Math.max(map.getZoom(), 10) })
+  }
+
+  // highlight the selected search result
+  const resultItems = document.querySelectorAll('.search-result-item')
+  if (resultItems[index]) {
+    resultItems[index].classList.add('highlighted')
+  }
+}
+
+// fetch alerts for a specific park
 async function fetchParkAlerts(parkCode) {
   try {
     const response = await fetch(
@@ -47,15 +149,15 @@ async function fetchParkAlerts(parkCode) {
     }
     return []
   } catch (error) {
-    console.error('Error fetching alerts:', error)
+    console.error('error fetching alerts:', error)
     return []
   }
 }
 
-// Format alerts for display
+// format alerts for display
 function formatAlerts(alerts) {
   if (!alerts || alerts.length === 0) {
-    return '<p>No current alerts</p>'
+    return '<p>no current alerts</p>'
   }
 
   let html = '<div class="alerts-container">'
@@ -72,114 +174,12 @@ function formatAlerts(alerts) {
     }</p>
         <a href="${
           alert.url
-        }" target="_blank" class="alert-link">View full alert</a>
+        }" target="_blank" class="alert-link">view full alert</a>
       </div>
     `
   })
   html += '</div>'
   return html
-}
-
-// Add park markers to map
-function addParkMarkers(parks) {
-  clearMarkers()
-
-  parks.forEach((park, index) => {
-    // Use latLong field if available
-    if (park.latLong) {
-      // Parse "lat:44.59824417, long:-110.5471695" format
-      const coords = park.latLong.split(', ')
-      const lat = parseFloat(coords[0].split(':')[1])
-      const lng = parseFloat(coords[1].split(':')[1])
-
-      // Create marker
-      const marker = new mapboxgl.Marker()
-        .setLngLat([lng, lat])
-        .setPopup(
-          new mapboxgl.Popup().setHTML(
-            `<h3>${park.fullName}</h3><p>Loading alerts...</p>`
-          )
-        )
-        .addTo(map)
-
-      // Add click event to marker
-      marker.getElement().addEventListener('click', async () => {
-        highlightSearchResult(index)
-
-        // Fetch and display alerts
-        const alerts = await fetchParkAlerts(park.parkCode)
-        const alertsHtml = formatAlerts(alerts)
-
-        // Update popup content
-        marker.getPopup().setHTML(`
-          <h3>${park.fullName}</h3>
-          ${alertsHtml}
-        `)
-      })
-
-      // Store marker with index
-      currentMarkers.push({ marker, index })
-    }
-  })
-
-  // Fit map to show all markers if we have any
-  if (parks.length > 0) {
-    const bounds = new mapboxgl.LngLatBounds()
-    parks.forEach((park) => {
-      if (park.latLong) {
-        const coords = park.latLong.split(', ')
-        const lat = parseFloat(coords[0].split(':')[1])
-        const lng = parseFloat(coords[1].split(':')[1])
-        bounds.extend([lng, lat])
-      }
-    })
-    map.fitBounds(bounds, { padding: 50 })
-  }
-}
-
-// Highlight search result when marker is clicked
-function highlightSearchResult(index) {
-  // Remove previous highlights
-  document.querySelectorAll('.search-result-item').forEach((item) => {
-    item.classList.remove('highlighted')
-  })
-
-  // Highlight the selected result
-  const resultItems = document.querySelectorAll('.search-result-item')
-  if (resultItems[index]) {
-    resultItems[index].classList.add('highlighted')
-    resultItems[index].scrollIntoView({ behavior: 'smooth', block: 'center' })
-  }
-}
-
-// Highlight marker when search result is clicked
-function highlightMarker(index) {
-  // Remove previous highlights from search results
-  document.querySelectorAll('.search-result-item').forEach((item) => {
-    item.classList.remove('highlighted')
-  })
-
-  // Remove previous highlights from markers
-  currentMarkers.forEach(({ marker }) => {
-    marker.getElement().classList.remove('highlighted-marker')
-  })
-
-  // Highlight the selected marker
-  if (currentMarkers[index]) {
-    currentMarkers[index].marker
-      .getElement()
-      .classList.add('highlighted-marker')
-
-    // Center map on the marker
-    const coords = currentMarkers[index].marker.getLngLat()
-    map.flyTo({ center: coords, zoom: Math.max(map.getZoom(), 10) })
-  }
-
-  // Highlight the selected search result
-  const resultItems = document.querySelectorAll('.search-result-item')
-  if (resultItems[index]) {
-    resultItems[index].classList.add('highlighted')
-  }
 }
 
 // format query search
@@ -194,30 +194,30 @@ function formatQueryParams(params) {
 function showLoading() {
   $('#js-error-message').empty()
   $('#results').addClass('hidden')
-  $('#js-form input[type="submit"]').prop('disabled', true).val('Searching...')
+  $('#js-form input[type="submit"]').prop('disabled', true).val('searching...')
 }
 
 // hide loading state
 function hideLoading() {
-  $('#js-form input[type="submit"]').prop('disabled', false).val('Search')
+  $('#js-form input[type="submit"]').prop('disabled', false).val('search')
 }
 
-// display results in DOM
+// display results in dom
 function displayResults(responseJson, maxResults, requestedStates) {
   $('#results-list').empty()
   $('#js-error-message').empty()
 
   if (!responseJson.data || responseJson.data.length === 0) {
     $('#js-error-message').text(
-      'No parks found for the specified search terms. Please try different search terms.'
+      'no parks found for the specified search terms. please try different search terms.'
     )
     return
   }
 
-  // Store current results
+  // store current results
   currentResults = responseJson.data
 
-  // Add markers to map
+  // add markers to map
   addParkMarkers(responseJson.data)
 
   for (let i = 0; i < responseJson.data.length && i < maxResults; i++) {
@@ -230,7 +230,7 @@ function displayResults(responseJson, maxResults, requestedStates) {
       addressHtml = `<address>${address.line1}<br>${address.city}, ${address.stateCode} ${address.postalCode}</address>`
     }
 
-    // Create clickable result item
+    // create clickable result item
     const resultItem = $(`
       <li class="search-result-item" data-index="${i}">
         <h3>${park.fullName}</h3>
@@ -240,7 +240,7 @@ function displayResults(responseJson, maxResults, requestedStates) {
       </li>
     `)
 
-    // Add click event to result item
+    // add click event to result item
     resultItem.on('click', () => {
       highlightMarker(i)
     })
@@ -250,17 +250,17 @@ function displayResults(responseJson, maxResults, requestedStates) {
   $('#results').removeClass('hidden')
 }
 
-//  GET query & response from API
+// get query & response from api
 function getNatParkList(query, maxResults) {
-  // Get selected states from dropdown
+  // get selected states from dropdown
   const selectedStates = []
   $('#state-filter option:selected').each(function () {
     selectedStates.push($(this).val())
   })
 
-  // If states are selected, use stateCode parameter with search term
+  // if states are selected, use statecode parameter with search term
   if (selectedStates.length > 0) {
-    // Make separate API calls for each selected state
+    // make separate api calls for each selected state
     const promises = selectedStates.map((stateCode) => {
       const params = {
         stateCode: stateCode,
@@ -283,7 +283,7 @@ function getNatParkList(query, maxResults) {
 
     Promise.all(promises)
       .then((responses) => {
-        // Combine all results and remove duplicates
+        // combine all results and remove duplicates
         const allParks = []
         responses.forEach((response) => {
           if (response.data) {
@@ -291,7 +291,7 @@ function getNatParkList(query, maxResults) {
           }
         })
 
-        // Sort combined results by relevance score
+        // sort combined results by relevance score
         const uniqueParks = allParks
           .filter(
             (park, index, self) =>
@@ -304,13 +304,13 @@ function getNatParkList(query, maxResults) {
         displayResults(combinedResponse, maxResults, query)
       })
       .catch((error) => {
-        $('#js-error-message').text(`Something went wrong: ${error.message}`)
+        $('#js-error-message').text(`something went wrong: ${error.message}`)
       })
       .finally(() => {
         hideLoading()
       })
   } else {
-    // No states selected, use q parameter for general search
+    // no states selected, use q parameter for general search
     const params = {
       q: query,
       limit: maxResults,
@@ -333,12 +333,23 @@ function getNatParkList(query, maxResults) {
         displayResults(responseJson, maxResults, query)
       })
       .catch((error) => {
-        $('#js-error-message').text(`Something went wrong: ${error.message}`)
+        $('#js-error-message').text(`something went wrong: ${error.message}`)
       })
       .finally(() => {
         hideLoading()
       })
   }
+}
+
+// populate states dropdown
+function populateStatesDropdown() {
+  const stateFilter = document.getElementById('state-filter')
+  STATES.forEach((state) => {
+    const option = document.createElement('option')
+    option.value = state.value
+    option.textContent = state.text
+    stateFilter.appendChild(option)
+  })
 }
 
 // listen for submit
@@ -350,7 +361,7 @@ function watchForm() {
     const maxResults = $('#js-max-results').val()
 
     if (!searchTerm) {
-      $('#js-error-message').text('Please enter a search term.')
+      $('#js-error-message').text('please enter a search term.')
       return
     }
 
@@ -358,7 +369,7 @@ function watchForm() {
     getNatParkList(searchTerm, maxResults)
   })
 
-  // Clear states button
+  // clear states button
   $('#clear-states').click(() => {
     $('#state-filter option:selected').prop('selected', false)
   })
@@ -368,17 +379,6 @@ function watchForm() {
       event.preventDefault()
       $('#js-basic-search').focus()
     }
-  })
-}
-
-// Populate states dropdown
-function populateStatesDropdown() {
-  const stateFilter = document.getElementById('state-filter')
-  STATES.forEach((state) => {
-    const option = document.createElement('option')
-    option.value = state.value
-    option.textContent = state.text
-    stateFilter.appendChild(option)
   })
 }
 
