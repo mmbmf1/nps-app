@@ -67,7 +67,6 @@ function addParkMarkers(parks) {
 
         // update popup content
         marker.getPopup().setHTML(`
-          <h3>alerts</h3>
           ${alertsHtml}
         `)
       })
@@ -160,26 +159,41 @@ function formatAlerts(alerts) {
     return '<p>no current alerts</p>'
   }
 
-  let html = '<div class="alerts-container">'
+  let html = `<div class="alerts-container">
+    <h3>alerts (${alerts.length})</h3>`
+
   alerts.forEach((alert) => {
     const categoryClass = alert.category.toLowerCase().replace(/\s+/g, '-')
     html += `
       <div class="alert-item ${categoryClass}">
-        <div class="alert-header">
+        <div class="alert-header" onclick="toggleAlert(this)">
           <span class="alert-category">${alert.category}</span>
           <h4 class="alert-title">${alert.title}</h4>
+          <span class="alert-toggle">+</span>
         </div>
-        <p class="alert-description">${alert.description.substring(0, 150)}${
-      alert.description.length > 150 ? '...' : ''
-    }</p>
-        <a href="${
-          alert.url
-        }" target="_blank" class="alert-link">view full alert</a>
+        <div class="alert-content" style="display: none;">
+          <p class="alert-description">${alert.description}</p>
+          <a href="${alert.url}" target="_blank" class="alert-link">view full alert</a>
+        </div>
       </div>
     `
   })
   html += '</div>'
   return html
+}
+
+// toggle alert expansion
+function toggleAlert(header) {
+  const content = header.nextElementSibling
+  const toggle = header.querySelector('.alert-toggle')
+
+  if (content.style.display === 'none') {
+    content.style.display = 'block'
+    toggle.textContent = '−'
+  } else {
+    content.style.display = 'none'
+    toggle.textContent = '+'
+  }
 }
 
 // format query search
