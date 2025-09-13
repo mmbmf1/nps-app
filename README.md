@@ -6,11 +6,13 @@ search for national parks by name, activity, or location.
 
 ## what it does
 
-search for parks by typing anything - park names, activities like "hiking", or locations like "colorado". optionally filter by specific states.
+search for parks by typing anything - park names, activities like "hiking", or locations like "colorado". optionally filter by specific states. results appear on an interactive map with clickable markers.
 
 ## features
 
 - **smart search**: find parks by name, activity, or location
+- **interactive map**: mapbox integration with clickable park markers
+- **synchronized experience**: click search results to highlight markers and vice versa
 - **advanced filtering**: multi-select state filtering with clear button
 - **relevance sorting**: results sorted by relevance score
 - **responsive design**: works on desktop and mobile
@@ -21,13 +23,14 @@ search for parks by typing anything - park names, activities like "hiking", or l
 ## setup
 
 1. get a free api key from [nps.gov](https://www.nps.gov/subjects/developer/get-started.htm)
-2. copy `js/config.example.js` to `js/config.js`
-3. add your api key
-4. open `index.html`
+2. get a free mapbox token from [mapbox.com](https://www.mapbox.com/)
+3. copy `js/config.example.js` to `js/config.js`
+4. add your api keys
+5. open `index.html`
 
 ## usage
 
-type what you're looking for and hit search. use the advanced filters if you want to narrow down by state.
+type what you're looking for and hit search. use the advanced filters if you want to narrow down by state. click on search results to highlight markers on the map, or click markers to highlight search results.
 
 ## examples
 
@@ -38,7 +41,7 @@ type what you're looking for and hit search. use the advanced filters if you wan
 
 ## tech
 
-vanilla js, jquery, nps api
+vanilla js, jquery, nps api, mapbox
 
 ---
 
@@ -50,16 +53,15 @@ vanilla js, jquery, nps api
 - better error handling and user feedback
 - performance optimization
 
-## phase 2: user experience polish 🎨 current
+## phase 2: user experience polish ✅ complete
 
-- **map integration with mapbox** (priority!)
+- **map integration with mapbox**
   - map-focused layout with search panel
   - park pins with click interactions
   - search results sync with map view
 - responsive design improvements
-- accessibility enhancements
 
-## phase 3: smart features 🔮 future
+## phase 3: smart features 🔮 current
 
 - **comprehensive nps api integration**
   - park news and updates
@@ -82,3 +84,16 @@ vanilla js, jquery, nps api
 - pagination for large result sets
 - performance optimizations
 - advanced responsive design
+
+## phase 5: advanced features 🔮 future
+
+- **contextual map layers**
+  - fishing spots, water bodies, access points
+  - trail difficulty, elevation contours, trailheads
+  - wildlife viewing areas, migration routes
+  - scenic overlooks, photography spots
+- **smart map intelligence** - adapts layers based on search intent
+
+## vision
+
+transform from simple search tool to comprehensive park discovery platform with interactive maps and rich, multi-endpoint data integration.
