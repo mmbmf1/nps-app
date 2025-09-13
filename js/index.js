@@ -1,7 +1,7 @@
 'use strict'
 
 // Mapbox configuration
-mapboxgl.accessToken = '%%MAPBOX_ACCESS_TOKEN%%' || config.MAPBOX_ACCESS_TOKEN
+mapboxgl.accessToken = config.MAPBOX_ACCESS_TOKEN
 
 // Initialize map
 const map = new mapboxgl.Map({
@@ -20,7 +20,7 @@ window.addEventListener('resize', () => {
 })
 
 // load configuration - Vercel will replace this
-const API_KEY = '%%NPS_API_KEY%%' || config.NPS_API_KEY
+const API_KEY = config.NPS_API_KEY
 const searchURL = 'https://developer.nps.gov/api/v1/parks'
 
 // format query search
