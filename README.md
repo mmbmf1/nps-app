@@ -74,6 +74,10 @@ vanilla js, jquery, nps api, mapbox
   - analyze search results to generate relevant hashtags
   - show clickable filtering options based on actual results
   - contextual filtering that adapts to your search
+- **url parameters for sharing**
+  - encode search terms, filters, and map state in url
+  - make searches bookmarkable and shareable
+  - restore state from url on page load
 - search suggestions and autocomplete
 - park details modal/page
 - search history and favorites
