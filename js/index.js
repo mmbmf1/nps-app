@@ -9,6 +9,8 @@ const map = new mapboxgl.Map({
   style: 'mapbox://styles/mapbox/outdoors-v11',
   center: [-95.7129, 37.0902],
   zoom: 4,
+  preserveDrawingBuffer: true,
+  hash: true,
 })
 
 // add navigation controls
