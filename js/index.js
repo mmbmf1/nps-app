@@ -291,6 +291,66 @@ function formatQueryParams(params) {
   return queryItems.join('&')
 }
 
+// URL parameter management for search and filters
+function updateSearchURL(searchTerm, maxResults, selectedStates) {
+  const params = new URLSearchParams(window.location.search)
+
+  if (searchTerm) {
+    params.set('q', searchTerm)
+  } else {
+    params.delete('q')
+  }
+
+  if (maxResults && maxResults !== '25') {
+    params.set('limit', maxResults)
+  } else {
+    params.delete('limit')
+  }
+
+  if (selectedStates && selectedStates.length > 0) {
+    params.set('states', selectedStates.join(','))
+  } else {
+    params.delete('states')
+  }
+
+  const newURL = `${window.location.pathname}?${params.toString()}`
+  window.history.pushState({}, '', newURL)
+}
+
+function parseSearchURL() {
+  const params = new URLSearchParams(window.location.search)
+  return {
+    searchTerm: params.get('q') || '',
+    maxResults: params.get('limit') || '25',
+    selectedStates: params.get('states') ? params.get('states').split(',') : [],
+  }
+}
+
+function restoreSearchFromURL() {
+  const urlParams = parseSearchURL()
+
+  // restore search form
+  if (urlParams.searchTerm) {
+    $('#js-basic-search').val(urlParams.searchTerm)
+  }
+  if (urlParams.maxResults) {
+    $('#js-max-results').val(urlParams.maxResults)
+  }
+
+  // restore state filter
+  if (urlParams.selectedStates.length > 0) {
+    $('#state-filter option').each(function () {
+      $(this).prop('selected', urlParams.selectedStates.includes($(this).val()))
+    })
+  }
+
+  // if we have a search term, perform the search
+  if (urlParams.searchTerm) {
+    showLoading()
+    getNatParkList(urlParams.searchTerm, urlParams.maxResults)
+  }
+}
+
 // show loading state
 function showLoading() {
   $('#js-error-message').empty()
@@ -460,11 +520,18 @@ function watchForm() {
 
     const searchTerm = $('#js-basic-search').val().trim()
     const maxResults = $('#js-max-results').val()
+    const selectedStates = []
+    $('#state-filter option:selected').each(function () {
+      selectedStates.push($(this).val())
+    })
 
     if (!searchTerm) {
       $('#js-error-message').text('please enter a search term.')
       return
     }
+
+    // update URL with search parameters
+    updateSearchURL(searchTerm, maxResults, selectedStates)
 
     showLoading()
     getNatParkList(searchTerm, maxResults)
@@ -473,6 +540,10 @@ function watchForm() {
   // clear states button
   $('#clear-states').click(() => {
     $('#state-filter option:selected').prop('selected', false)
+    // update URL when clearing states
+    const searchTerm = $('#js-basic-search').val().trim()
+    const maxResults = $('#js-max-results').val()
+    updateSearchURL(searchTerm, maxResults, [])
   })
 
   $(document).on('keydown', function (event) {
@@ -486,3 +557,8 @@ function watchForm() {
 $(watchForm)
 $(populateStatesDropdown)
 $(addTabHandlers)
+
+// restore search state from URL on page load
+$(document).ready(() => {
+  restoreSearchFromURL()
+})
