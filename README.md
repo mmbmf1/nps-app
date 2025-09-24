@@ -14,6 +14,7 @@ search for parks by typing anything - park names, activities like "hiking", or l
 - **interactive map**: mapbox integration with clickable park markers
 - **synchronized experience**: click search results to highlight markers and vice versa
 - **advanced filtering**: multi-select state filtering with clear button
+- **shareable searches**: bookmark and share specific searches with url parameters
 - **relevance sorting**: results sorted by relevance score
 - **responsive design**: works on desktop and mobile
 - **keyboard shortcuts**: cmd+k to focus search input
@@ -32,12 +33,15 @@ search for parks by typing anything - park names, activities like "hiking", or l
 
 type what you're looking for and hit search. use the advanced filters if you want to narrow down by state. click on search results to highlight markers on the map, or click markers to highlight search results.
 
+**sharing searches**: copy the url to share specific searches with friends. the url includes your search terms, filters, and map position.
+
 ## examples
 
 - search "hiking" to find all parks with hiking trails
 - search "yellowstone" to find yellowstone national park
 - search "colorado" to find all parks in colorado
 - use advanced filters to search "hiking" in specific states
+- **share searches**: copy url like `?q=hiking&states=CA,CO#zoom=6&center=-119.5,37.2`
 
 ## tech
 
@@ -74,7 +78,7 @@ vanilla js, jquery, nps api, mapbox
   - analyze search results to generate relevant hashtags
   - show clickable filtering options based on actual results
   - contextual filtering that adapts to your search
-- **url parameters for sharing**
+- **url parameters for sharing** ✅ complete
   - encode search terms, filters, and map state in url
   - make searches bookmarkable and shareable
   - restore state from url on page load
