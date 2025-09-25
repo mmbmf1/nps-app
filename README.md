@@ -12,6 +12,7 @@ search for parks by typing anything - park names, activities like "hiking", or l
 
 - **smart search**: find parks by name, activity, or location
 - **interactive map**: mapbox integration with clickable park markers
+- **comprehensive park data**: alerts, news, things to do, and amenities
 - **synchronized experience**: click search results to highlight markers and vice versa
 - **advanced filtering**: multi-select state filtering with clear button
 - **shareable searches**: bookmark and share specific searches with url parameters
@@ -33,6 +34,8 @@ search for parks by typing anything - park names, activities like "hiking", or l
 
 type what you're looking for and hit search. use the advanced filters if you want to narrow down by state. click on search results to highlight markers on the map, or click markers to highlight search results.
 
+**exploring park data**: click on search result cards to explore alerts, news, things to do, and amenities for each park. use the submenu buttons to switch between different types of information.
+
 **sharing searches**: copy the url to share specific searches with friends. the url includes your search terms, filters, and map position.
 
 ## examples
@@ -41,6 +44,7 @@ type what you're looking for and hit search. use the advanced filters if you wan
 - search "yellowstone" to find yellowstone national park
 - search "colorado" to find all parks in colorado
 - use advanced filters to search "hiking" in specific states
+- **explore park details**: click "things to do" to see activities, "news" for recent updates
 - **share searches**: copy url like `?q=hiking&states=CA,CO#zoom=6&center=-119.5,37.2`
 
 ## tech
