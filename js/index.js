@@ -73,15 +73,13 @@ function addParkMarkers(parks) {
       marker.getElement().addEventListener('click', async () => {
         highlightSearchResult(index)
 
-        // fetch all park data
-        const [alerts, thingsToDo, news, amenities] = await Promise.all([
+        // fetch only alerts and news for popup
+        const [alerts, news] = await Promise.all([
           fetchParkAlerts(park.parkCode),
-          fetchParkThingsToDo(park.parkCode),
           fetchParkNews(park.parkCode),
-          fetchParkAmenities(park.parkCode),
         ])
 
-        const parkDataHtml = formatParkData(alerts, thingsToDo, news, amenities)
+        const parkDataHtml = formatParkData(alerts, news)
 
         // update popup content
         marker.getPopup().setHTML(`
@@ -228,20 +226,14 @@ async function fetchParkAmenities(parkCode) {
   }
 }
 
-// format park data for display
-function formatParkData(alerts, thingsToDo, news, amenities) {
+// format park data for display (popup - alerts and news only)
+function formatParkData(alerts, news) {
   let html = `<div class="alerts-container">
     <div class="tab-menu">
       <div class="tab active" data-tab="alerts">alerts (${
         alerts ? alerts.length : 0
       })</div>
       <div class="tab" data-tab="news">news (${news ? news.length : 0})</div>
-      <div class="tab" data-tab="things">things to do (${
-        thingsToDo ? thingsToDo.length : 0
-      })</div>
-      <div class="tab" data-tab="amenities">amenities (${
-        amenities ? amenities.length : 0
-      })</div>
     </div>
     <div class="tab-content" id="alerts-content">
       <div class="alerts-list">`
@@ -286,14 +278,8 @@ function formatParkData(alerts, thingsToDo, news, amenities) {
 
   html += `</div>
     </div>
-    <div class="tab-content" id="things-content" style="display: none;">
-      <div class="alerts-list">${formatThingsToDo(thingsToDo)}</div>
-    </div>
     <div class="tab-content" id="news-content" style="display: none;">
       <div class="alerts-list">${formatNews(news)}</div>
-    </div>
-    <div class="tab-content" id="amenities-content" style="display: none;">
-      <div class="alerts-list">${formatAmenities(amenities)}</div>
     </div>
   </div>`
   return html
@@ -433,6 +419,24 @@ function formatAmenities(amenities) {
   })
   html += '</ul>'
   return html
+}
+
+// switch park content in search results
+async function switchParkContent(parkIndex, contentType, parkCode) {
+  const contentDiv = $(`#park-${parkIndex}-${contentType}`)
+
+  if (contentType === 'overview') {
+    // Overview is already loaded, just show it
+    return
+  }
+
+  if (contentType === 'things') {
+    const thingsToDo = await fetchParkThingsToDo(parkCode)
+    contentDiv.html(formatThingsToDo(thingsToDo))
+  } else if (contentType === 'amenities') {
+    const amenities = await fetchParkAmenities(parkCode)
+    contentDiv.html(formatAmenities(amenities))
+  }
 }
 
 // function to open alert URLs
@@ -596,19 +600,47 @@ function displayResults(responseJson, maxResults, requestedStates) {
       addressHtml = `<address>${address.line1}<br>${address.city}, ${address.stateCode} ${address.postalCode}</address>`
     }
 
-    // create clickable result item
+    // create clickable result item with submenu
     const resultItem = $(`
       <li class="search-result-item" data-index="${i}">
-        <h3>${park.fullName}</h3>
-        <p>${park.description}</p>
-        <a href="${park.url}" target="_blank" rel="noopener">${park.url}</a>
-        ${addressHtml}
+        <div class="park-header">
+          <h3>${park.fullName}</h3>
+          <div class="park-submenu">
+            <button class="submenu-btn active" data-content="overview">Overview</button>
+            <button class="submenu-btn" data-content="things">Things to Do</button>
+            <button class="submenu-btn" data-content="amenities">Amenities</button>
+          </div>
+        </div>
+        <div class="park-content" id="park-${i}-overview">
+          <p>${park.description}</p>
+          <a href="${park.url}" target="_blank" rel="noopener">${park.url}</a>
+          ${addressHtml}
+        </div>
+        <div class="park-content hidden" id="park-${i}-things">
+          <p>Loading things to do...</p>
+        </div>
+        <div class="park-content hidden" id="park-${i}-amenities">
+          <p>Loading amenities...</p>
+        </div>
       </li>
     `)
 
-    // add click event to result item
-    resultItem.on('click', () => {
-      highlightMarker(i)
+    // add click event to result item (but not submenu buttons)
+    resultItem.on('click', (e) => {
+      if (!$(e.target).hasClass('submenu-btn')) {
+        highlightMarker(i)
+      }
+    })
+
+    // add submenu click handlers
+    resultItem.find('.submenu-btn').on('click', (e) => {
+      e.stopPropagation()
+      const contentType = $(e.target).data('content')
+      switchParkContent(i, contentType, park.parkCode)
+
+      // update active button
+      resultItem.find('.submenu-btn').removeClass('active')
+      $(e.target).addClass('active')
     })
 
     $('#results-list').append(resultItem)

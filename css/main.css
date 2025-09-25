@@ -634,3 +634,47 @@ address {
     padding: 0 8px !important;
   }
 }
+
+/* park submenu styling */
+.park-header {
+  border-bottom: 1px solid #e0e6e0;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+}
+
+.park-submenu {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.submenu-btn {
+  background: #f5f5f5;
+  border: 1px solid #d0d6d0;
+  border-radius: 2px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.submenu-btn:hover {
+  background: #e8ebe8;
+  color: #333;
+}
+
+.submenu-btn.active {
+  background: #6b8e6b;
+  color: white;
+  border-color: #6b8e6b;
+}
+
+.park-content {
+  min-height: 100px;
+}
+
+.park-content.hidden {
+  display: none;
+}
