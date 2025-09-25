@@ -74,14 +74,14 @@ function addParkMarkers(parks) {
         highlightSearchResult(index)
 
         // fetch all park data
-        const [alerts, events, articles, amenities] = await Promise.all([
+        const [alerts, events, news, amenities] = await Promise.all([
           fetchParkAlerts(park.parkCode),
           fetchParkEvents(park.parkCode),
-          fetchParkArticles(park.parkCode),
+          fetchParkNews(park.parkCode),
           fetchParkAmenities(park.parkCode),
         ])
 
-        const parkDataHtml = formatParkData(alerts, events, articles, amenities)
+        const parkDataHtml = formatParkData(alerts, events, news, amenities)
 
         // update popup content
         marker.getPopup().setHTML(`
@@ -194,11 +194,11 @@ async function fetchParkEvents(parkCode) {
   }
 }
 
-// fetch articles/news for a specific park
-async function fetchParkArticles(parkCode) {
+// fetch news releases for a specific park
+async function fetchParkNews(parkCode) {
   try {
     const response = await fetch(
-      `https://developer.nps.gov/api/v1/articles?parkCode=${parkCode}&api_key=${API_KEY}`
+      `https://developer.nps.gov/api/v1/newsreleases?parkCode=${parkCode}&api_key=${API_KEY}`
     )
     if (response.ok) {
       const data = await response.json()
@@ -206,7 +206,7 @@ async function fetchParkArticles(parkCode) {
     }
     return []
   } catch (error) {
-    console.error('error fetching articles:', error)
+    console.error('error fetching news releases:', error)
     return []
   }
 }
@@ -229,20 +229,18 @@ async function fetchParkAmenities(parkCode) {
 }
 
 // format park data for display
-function formatParkData(alerts, events, articles, amenities) {
+function formatParkData(alerts, events, news, amenities) {
   let html = `<div class="alerts-container">
     <div class="tab-menu">
       <div class="tab active" data-tab="alerts">alerts (${
         alerts ? alerts.length : 0
       })</div>
-      <div class="tab" data-tab="events">events (${
-        events ? events.length : 0
-      })</div>
-      <div class="tab" data-tab="news">news (${
-        articles ? articles.length : 0
-      })</div>
+      <div class="tab" data-tab="news">news (${news ? news.length : 0})</div>
       <div class="tab" data-tab="amenities">amenities (${
         amenities ? amenities.length : 0
+      })</div>
+      <div class="tab" data-tab="events">events (${
+        events ? events.length : 0
       })</div>
     </div>
     <div class="tab-content" id="alerts-content">
@@ -292,7 +290,7 @@ function formatParkData(alerts, events, articles, amenities) {
       <div class="alerts-list">${formatEvents(events)}</div>
     </div>
     <div class="tab-content" id="news-content" style="display: none;">
-      <div class="alerts-list">${formatArticles(articles)}</div>
+      <div class="alerts-list">${formatNews(news)}</div>
     </div>
     <div class="tab-content" id="amenities-content" style="display: none;">
       <div class="alerts-list">${formatAmenities(amenities)}</div>
@@ -333,27 +331,32 @@ function formatEvents(events) {
   return html
 }
 
-// format articles for display
-function formatArticles(articles) {
-  if (!articles || articles.length === 0) {
-    return '<p>no current articles</p>'
+// format news releases for display
+function formatNews(news) {
+  if (!news || news.length === 0) {
+    return '<p>no current news</p>'
   }
 
   let html = ''
-  articles.forEach((article) => {
+  news.forEach((newsItem) => {
+    // Debug: log the news item to see what fields are available
+    console.log('News data:', newsItem)
+
+    // Use abstract if available, otherwise use title as fallback
+    const description =
+      newsItem.abstract || newsItem.title || 'No description available'
+
     html += `
       <div class="alert-item information">
         <div class="alert-header">
-          <span class="alert-category">Article</span>
-          <h4 class="alert-title">${article.title}</h4>
+          <span class="alert-category">News</span>
+          <h4 class="alert-title">${newsItem.title}</h4>
         </div>
         <div class="alert-content">
-          <p class="alert-description">${
-            article.abstract || 'No description available'
-          }</p>
+          <p class="alert-description">${description}</p>
           ${
-            article.url
-              ? `<a href="${article.url}" target="_blank" class="alert-link">read full article</a>`
+            newsItem.url
+              ? `<a href="${newsItem.url}" target="_blank" class="alert-link">read full article</a>`
               : ''
           }
         </div>
@@ -369,27 +372,20 @@ function formatAmenities(amenities) {
     return '<p>no amenities listed</p>'
   }
 
-  let html = ''
+  let html = '<ul style="list-style: none; padding: 0; margin: 0;">'
   amenities.forEach((amenity) => {
     html += `
-      <div class="alert-item information">
-        <div class="alert-header">
-          <span class="alert-category">Amenity</span>
-          <h4 class="alert-title">${amenity.name}</h4>
-        </div>
-        <div class="alert-content">
-          <p class="alert-description">${
-            amenity.description || 'No description available'
-          }</p>
-          ${
-            amenity.amenityType
-              ? `<p><strong>Type:</strong> ${amenity.amenityType}</p>`
-              : ''
-          }
-        </div>
-      </div>
+      <li style="background: white; border-radius: 2px; padding: 12px; margin-bottom: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+        <strong>${amenity.name}</strong>
+        ${
+          amenity.amenityType
+            ? `<span style="color: #666; font-size: 14px;"> - ${amenity.amenityType}</span>`
+            : ''
+        }
+      </li>
     `
   })
+  html += '</ul>'
   return html
 }
 
