@@ -72,12 +72,11 @@ vanilla js, jquery, nps api, mapbox
 ## phase 3: smart features 🔮 current
 
 - **comprehensive nps api integration**
-  - park news and updates
-  - events and programs
-  - alerts and closures
-  - amenities and facilities
-  - live webcams
-  - park articles and stories
+  - park news and updates ✅ complete
+  - events and programs ✅ complete
+  - alerts and closures ✅ complete
+  - amenities and facilities ✅ complete
+  - park boundaries and shapes
 - **dynamic hashtag suggestions**
   - analyze search results to generate relevant hashtags
   - show clickable filtering options based on actual results
