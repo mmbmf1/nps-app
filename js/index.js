@@ -74,14 +74,14 @@ function addParkMarkers(parks) {
         highlightSearchResult(index)
 
         // fetch all park data
-        const [alerts, events, news, amenities] = await Promise.all([
+        const [alerts, thingsToDo, news, amenities] = await Promise.all([
           fetchParkAlerts(park.parkCode),
-          fetchParkEvents(park.parkCode),
+          fetchParkThingsToDo(park.parkCode),
           fetchParkNews(park.parkCode),
           fetchParkAmenities(park.parkCode),
         ])
 
-        const parkDataHtml = formatParkData(alerts, events, news, amenities)
+        const parkDataHtml = formatParkData(alerts, thingsToDo, news, amenities)
 
         // update popup content
         marker.getPopup().setHTML(`
@@ -177,11 +177,11 @@ async function fetchParkAlerts(parkCode) {
   }
 }
 
-// fetch events for a specific park
-async function fetchParkEvents(parkCode) {
+// fetch things to do for a specific park
+async function fetchParkThingsToDo(parkCode) {
   try {
     const response = await fetch(
-      `https://developer.nps.gov/api/v1/events?parkCode=${parkCode}&api_key=${API_KEY}`
+      `https://developer.nps.gov/api/v1/thingstodo?parkCode=${parkCode}&api_key=${API_KEY}`
     )
     if (response.ok) {
       const data = await response.json()
@@ -189,7 +189,7 @@ async function fetchParkEvents(parkCode) {
     }
     return []
   } catch (error) {
-    console.error('error fetching events:', error)
+    console.error('error fetching things to do:', error)
     return []
   }
 }
@@ -229,18 +229,18 @@ async function fetchParkAmenities(parkCode) {
 }
 
 // format park data for display
-function formatParkData(alerts, events, news, amenities) {
+function formatParkData(alerts, thingsToDo, news, amenities) {
   let html = `<div class="alerts-container">
     <div class="tab-menu">
       <div class="tab active" data-tab="alerts">alerts (${
         alerts ? alerts.length : 0
       })</div>
       <div class="tab" data-tab="news">news (${news ? news.length : 0})</div>
+      <div class="tab" data-tab="things">things to do (${
+        thingsToDo ? thingsToDo.length : 0
+      })</div>
       <div class="tab" data-tab="amenities">amenities (${
         amenities ? amenities.length : 0
-      })</div>
-      <div class="tab" data-tab="events">events (${
-        events ? events.length : 0
       })</div>
     </div>
     <div class="tab-content" id="alerts-content">
@@ -286,8 +286,8 @@ function formatParkData(alerts, events, news, amenities) {
 
   html += `</div>
     </div>
-    <div class="tab-content" id="events-content" style="display: none;">
-      <div class="alerts-list">${formatEvents(events)}</div>
+    <div class="tab-content" id="things-content" style="display: none;">
+      <div class="alerts-list">${formatThingsToDo(thingsToDo)}</div>
     </div>
     <div class="tab-content" id="news-content" style="display: none;">
       <div class="alerts-list">${formatNews(news)}</div>
@@ -357,6 +357,52 @@ function formatNews(news) {
           ${
             newsItem.url
               ? `<a href="${newsItem.url}" target="_blank" class="alert-link">read full article</a>`
+              : ''
+          }
+        </div>
+      </div>
+    `
+  })
+  return html
+}
+
+// format things to do for display
+function formatThingsToDo(thingsToDo) {
+  if (!thingsToDo || thingsToDo.length === 0) {
+    return '<p>no things to do listed</p>'
+  }
+
+  let html = ''
+  thingsToDo.forEach((thing) => {
+    html += `
+      <div class="alert-item information">
+        <div class="alert-header">
+          <span class="alert-category">Activity</span>
+          <h4 class="alert-title">${thing.title}</h4>
+        </div>
+        <div class="alert-content">
+          <p class="alert-description">${
+            thing.shortDescription || 'No description available'
+          }</p>
+          ${thing.longDescription ? `<p>${thing.longDescription}</p>` : ''}
+          ${
+            thing.seasonDescription
+              ? `<p><strong>Season:</strong> ${thing.seasonDescription}</p>`
+              : ''
+          }
+          ${
+            thing.timeOfDayDescription
+              ? `<p><strong>Best Time:</strong> ${thing.timeOfDayDescription}</p>`
+              : ''
+          }
+          ${
+            thing.durationDescription
+              ? `<p><strong>Duration:</strong> ${thing.durationDescription}</p>`
+              : ''
+          }
+          ${
+            thing.accessibilityInformation
+              ? `<p><strong>Accessibility:</strong> ${thing.accessibilityInformation}</p>`
               : ''
           }
         </div>
