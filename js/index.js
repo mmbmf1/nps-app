@@ -63,7 +63,9 @@ function addParkMarkers(parks) {
             className: 'custom-popup',
             anchor: 'top',
             closeButton: false,
-          }).setHTML(`<h3>${park.fullName}</h3><p>loading alerts...</p>`)
+          }).setHTML(
+            `<h3>${park.fullName}</h3><p>loading park information...</p>`
+          )
         )
         .addTo(map)
 
@@ -71,14 +73,26 @@ function addParkMarkers(parks) {
       marker.getElement().addEventListener('click', async () => {
         highlightSearchResult(index)
 
-        // fetch and display alerts
-        const alerts = await fetchParkAlerts(park.parkCode)
-        const alertsHtml = formatAlerts(alerts)
+        // fetch all park data
+        const [alerts, events, articles, amenities] = await Promise.all([
+          fetchParkAlerts(park.parkCode),
+          fetchParkEvents(park.parkCode),
+          fetchParkArticles(park.parkCode),
+          fetchParkAmenities(park.parkCode),
+        ])
+
+        const parkDataHtml = formatParkData(alerts, events, articles, amenities)
 
         // update popup content
         marker.getPopup().setHTML(`
-          ${alertsHtml}
+          <h3>${park.fullName}</h3>
+          ${parkDataHtml}
         `)
+
+        // add tab handlers to the new content
+        setTimeout(() => {
+          addTabHandlers()
+        }, 100)
       })
 
       // store marker with index
@@ -163,16 +177,73 @@ async function fetchParkAlerts(parkCode) {
   }
 }
 
-// format alerts for display
-function formatAlerts(alerts) {
+// fetch events for a specific park
+async function fetchParkEvents(parkCode) {
+  try {
+    const response = await fetch(
+      `https://developer.nps.gov/api/v1/events?parkCode=${parkCode}&api_key=${API_KEY}`
+    )
+    if (response.ok) {
+      const data = await response.json()
+      return data.data || []
+    }
+    return []
+  } catch (error) {
+    console.error('error fetching events:', error)
+    return []
+  }
+}
+
+// fetch articles/news for a specific park
+async function fetchParkArticles(parkCode) {
+  try {
+    const response = await fetch(
+      `https://developer.nps.gov/api/v1/articles?parkCode=${parkCode}&api_key=${API_KEY}`
+    )
+    if (response.ok) {
+      const data = await response.json()
+      return data.data || []
+    }
+    return []
+  } catch (error) {
+    console.error('error fetching articles:', error)
+    return []
+  }
+}
+
+// fetch amenities for a specific park
+async function fetchParkAmenities(parkCode) {
+  try {
+    const response = await fetch(
+      `https://developer.nps.gov/api/v1/amenities?parkCode=${parkCode}&api_key=${API_KEY}`
+    )
+    if (response.ok) {
+      const data = await response.json()
+      return data.data || []
+    }
+    return []
+  } catch (error) {
+    console.error('error fetching amenities:', error)
+    return []
+  }
+}
+
+// format park data for display
+function formatParkData(alerts, events, articles, amenities) {
   let html = `<div class="alerts-container">
     <div class="tab-menu">
       <div class="tab active" data-tab="alerts">alerts (${
         alerts ? alerts.length : 0
       })</div>
-      <div class="tab" data-tab="events">events (0)</div>
-      <div class="tab" data-tab="news">news (0)</div>
-      <div class="tab" data-tab="amenities">amenities (0)</div>
+      <div class="tab" data-tab="events">events (${
+        events ? events.length : 0
+      })</div>
+      <div class="tab" data-tab="news">news (${
+        articles ? articles.length : 0
+      })</div>
+      <div class="tab" data-tab="amenities">amenities (${
+        amenities ? amenities.length : 0
+      })</div>
     </div>
     <div class="tab-content" id="alerts-content">
       <div class="alerts-list">`
@@ -218,15 +289,107 @@ function formatAlerts(alerts) {
   html += `</div>
     </div>
     <div class="tab-content" id="events-content" style="display: none;">
-      <p>events coming soon</p>
+      <div class="alerts-list">${formatEvents(events)}</div>
     </div>
     <div class="tab-content" id="news-content" style="display: none;">
-      <p>news coming soon</p>
+      <div class="alerts-list">${formatArticles(articles)}</div>
     </div>
     <div class="tab-content" id="amenities-content" style="display: none;">
-      <p>amenities coming soon</p>
+      <div class="alerts-list">${formatAmenities(amenities)}</div>
     </div>
   </div>`
+  return html
+}
+
+// format events for display
+function formatEvents(events) {
+  if (!events || events.length === 0) {
+    return '<p>no current events</p>'
+  }
+
+  let html = ''
+  events.forEach((event) => {
+    html += `
+      <div class="alert-item information">
+        <div class="alert-header">
+          <span class="alert-category">Event</span>
+          <h4 class="alert-title">${event.title}</h4>
+        </div>
+        <div class="alert-content">
+          <p class="alert-description">${
+            event.description || 'No description available'
+          }</p>
+          ${event.dates ? `<p><strong>Dates:</strong> ${event.dates}</p>` : ''}
+          ${event.times ? `<p><strong>Times:</strong> ${event.times}</p>` : ''}
+          ${
+            event.location
+              ? `<p><strong>Location:</strong> ${event.location}</p>`
+              : ''
+          }
+        </div>
+      </div>
+    `
+  })
+  return html
+}
+
+// format articles for display
+function formatArticles(articles) {
+  if (!articles || articles.length === 0) {
+    return '<p>no current articles</p>'
+  }
+
+  let html = ''
+  articles.forEach((article) => {
+    html += `
+      <div class="alert-item information">
+        <div class="alert-header">
+          <span class="alert-category">Article</span>
+          <h4 class="alert-title">${article.title}</h4>
+        </div>
+        <div class="alert-content">
+          <p class="alert-description">${
+            article.abstract || 'No description available'
+          }</p>
+          ${
+            article.url
+              ? `<a href="${article.url}" target="_blank" class="alert-link">read full article</a>`
+              : ''
+          }
+        </div>
+      </div>
+    `
+  })
+  return html
+}
+
+// format amenities for display
+function formatAmenities(amenities) {
+  if (!amenities || amenities.length === 0) {
+    return '<p>no amenities listed</p>'
+  }
+
+  let html = ''
+  amenities.forEach((amenity) => {
+    html += `
+      <div class="alert-item information">
+        <div class="alert-header">
+          <span class="alert-category">Amenity</span>
+          <h4 class="alert-title">${amenity.name}</h4>
+        </div>
+        <div class="alert-content">
+          <p class="alert-description">${
+            amenity.description || 'No description available'
+          }</p>
+          ${
+            amenity.amenityType
+              ? `<p><strong>Type:</strong> ${amenity.amenityType}</p>`
+              : ''
+          }
+        </div>
+      </div>
+    `
+  })
   return html
 }
 
