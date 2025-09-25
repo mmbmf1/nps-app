@@ -308,8 +308,15 @@ function formatNews(news) {
     return '<p>no current news</p>'
   }
 
+  // sort news by date (most recent first)
+  const sortedNews = news.sort((a, b) => {
+    const dateA = new Date(a.releaseDate || a.date || 0)
+    const dateB = new Date(b.releaseDate || b.date || 0)
+    return dateB - dateA // most recent first
+  })
+
   let html = ''
-  news.forEach((newsItem) => {
+  sortedNews.forEach((newsItem) => {
     // Debug: log the news item to see what fields are available
     console.log('News data:', newsItem)
 
@@ -325,6 +332,13 @@ function formatNews(news) {
         </div>
         <div class="alert-content">
           <p class="alert-description">${description}</p>
+          ${
+            newsItem.releaseDate || newsItem.date
+              ? `<p class="news-date"><strong>Published:</strong> ${new Date(
+                  newsItem.releaseDate || newsItem.date
+                ).toLocaleDateString()}</p>`
+              : ''
+          }
           ${
             newsItem.url
               ? `<a href="${newsItem.url}" target="_blank" class="alert-link">read full article</a>`
