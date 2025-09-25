@@ -88,6 +88,11 @@ vanilla js, jquery, nps api, mapbox
 
 ## phase 4: polish & optimization 🔧 future
 
+- **code cleanup & simplification**
+  - consolidate and organize css (currently 895+ lines)
+  - remove unused styles and duplicate code
+  - optimize javascript function organization
+  - add inline documentation and comments
 - better styling (outdoor minimalist design)
 - pagination for large result sets
 - performance optimizations
