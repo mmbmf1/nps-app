@@ -73,13 +73,9 @@ function addParkMarkers(parks) {
       marker.getElement().addEventListener('click', async () => {
         highlightSearchResult(index)
 
-        // fetch only alerts and news for popup
-        const [alerts, news] = await Promise.all([
-          fetchParkAlerts(park.parkCode),
-          fetchParkNews(park.parkCode),
-        ])
-
-        const parkDataHtml = formatParkData(alerts, news)
+        // fetch only alerts for popup
+        const alerts = await fetchParkAlerts(park.parkCode)
+        const parkDataHtml = formatParkData(alerts)
 
         // update popup content
         marker.getPopup().setHTML(`
@@ -226,16 +222,9 @@ async function fetchParkAmenities(parkCode) {
   }
 }
 
-// format park data for display (popup - alerts and news only)
-function formatParkData(alerts, news) {
+// format park data for display (popup - alerts only)
+function formatParkData(alerts) {
   let html = `<div class="alerts-container">
-    <div class="tab-menu">
-      <div class="tab active" data-tab="alerts">alerts (${
-        alerts ? alerts.length : 0
-      })</div>
-      <div class="tab" data-tab="news">news (${news ? news.length : 0})</div>
-    </div>
-    <div class="tab-content" id="alerts-content">
       <div class="alerts-list">`
 
   if (!alerts || alerts.length === 0) {
@@ -277,10 +266,6 @@ function formatParkData(alerts, news) {
   }
 
   html += `</div>
-    </div>
-    <div class="tab-content" id="news-content" style="display: none;">
-      <div class="alerts-list">${formatNews(news)}</div>
-    </div>
   </div>`
   return html
 }
@@ -358,43 +343,45 @@ function formatThingsToDo(thingsToDo) {
     return '<p>no things to do listed</p>'
   }
 
-  let html = ''
+  let html = '<div class="things-list">'
   thingsToDo.forEach((thing) => {
     html += `
-      <div class="alert-item information">
-        <div class="alert-header">
-          <span class="alert-category">Activity</span>
-          <h4 class="alert-title">${thing.title}</h4>
-        </div>
-        <div class="alert-content">
-          <p class="alert-description">${
-            thing.shortDescription || 'No description available'
-          }</p>
-          ${thing.longDescription ? `<p>${thing.longDescription}</p>` : ''}
+      <div class="thing-item">
+        <h4 class="thing-title">${thing.title}</h4>
+        <p class="thing-description">${
+          thing.shortDescription || 'No description available'
+        }</p>
+        ${
+          thing.longDescription
+            ? `<p class="thing-details">${thing.longDescription}</p>`
+            : ''
+        }
+        <div class="thing-meta">
           ${
             thing.seasonDescription
-              ? `<p><strong>Season:</strong> ${thing.seasonDescription}</p>`
+              ? `<span class="meta-item"><strong>Season:</strong> ${thing.seasonDescription}</span>`
               : ''
           }
           ${
             thing.timeOfDayDescription
-              ? `<p><strong>Best Time:</strong> ${thing.timeOfDayDescription}</p>`
+              ? `<span class="meta-item"><strong>Best Time:</strong> ${thing.timeOfDayDescription}</span>`
               : ''
           }
           ${
             thing.durationDescription
-              ? `<p><strong>Duration:</strong> ${thing.durationDescription}</p>`
+              ? `<span class="meta-item"><strong>Duration:</strong> ${thing.durationDescription}</span>`
               : ''
           }
           ${
             thing.accessibilityInformation
-              ? `<p><strong>Accessibility:</strong> ${thing.accessibilityInformation}</p>`
+              ? `<span class="meta-item"><strong>Accessibility:</strong> ${thing.accessibilityInformation}</span>`
               : ''
           }
         </div>
       </div>
     `
   })
+  html += '</div>'
   return html
 }
 
@@ -425,12 +412,23 @@ function formatAmenities(amenities) {
 async function switchParkContent(parkIndex, contentType, parkCode) {
   const contentDiv = $(`#park-${parkIndex}-${contentType}`)
 
+  // hide all content divs for this park
+  $(
+    `#park-${parkIndex}-overview, #park-${parkIndex}-news, #park-${parkIndex}-things, #park-${parkIndex}-amenities`
+  ).addClass('hidden')
+
+  // show the selected content
+  contentDiv.removeClass('hidden')
+
   if (contentType === 'overview') {
     // Overview is already loaded, just show it
     return
   }
 
-  if (contentType === 'things') {
+  if (contentType === 'news') {
+    const news = await fetchParkNews(parkCode)
+    contentDiv.html(formatNews(news))
+  } else if (contentType === 'things') {
     const thingsToDo = await fetchParkThingsToDo(parkCode)
     contentDiv.html(formatThingsToDo(thingsToDo))
   } else if (contentType === 'amenities') {
@@ -604,9 +602,13 @@ function displayResults(responseJson, maxResults, requestedStates) {
     const resultItem = $(`
       <li class="search-result-item" data-index="${i}">
         <div class="park-header">
-          <h3>${park.fullName}</h3>
+          <div class="park-title-row">
+            <h3>${park.fullName}</h3>
+            <button class="zoom-btn" title="Zoom to park on map">📍</button>
+          </div>
           <div class="park-submenu">
             <button class="submenu-btn active" data-content="overview">Overview</button>
+            <button class="submenu-btn" data-content="news">News</button>
             <button class="submenu-btn" data-content="things">Things to Do</button>
             <button class="submenu-btn" data-content="amenities">Amenities</button>
           </div>
@@ -615,6 +617,9 @@ function displayResults(responseJson, maxResults, requestedStates) {
           <p>${park.description}</p>
           <a href="${park.url}" target="_blank" rel="noopener">${park.url}</a>
           ${addressHtml}
+        </div>
+        <div class="park-content hidden" id="park-${i}-news">
+          <p>Loading news...</p>
         </div>
         <div class="park-content hidden" id="park-${i}-things">
           <p>Loading things to do...</p>
@@ -625,9 +630,19 @@ function displayResults(responseJson, maxResults, requestedStates) {
       </li>
     `)
 
-    // add click event to result item (but not submenu buttons)
+    // add zoom button click handler
+    resultItem.find('.zoom-btn').on('click', (e) => {
+      e.stopPropagation()
+      highlightMarker(i)
+    })
+
+    // add card click handler for zoom (backwards compatible)
     resultItem.on('click', (e) => {
-      if (!$(e.target).hasClass('submenu-btn')) {
+      // only zoom if not clicking submenu buttons or zoom button
+      if (
+        !$(e.target).hasClass('submenu-btn') &&
+        !$(e.target).hasClass('zoom-btn')
+      ) {
         highlightMarker(i)
       }
     })
