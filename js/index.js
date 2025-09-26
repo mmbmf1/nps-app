@@ -317,10 +317,7 @@ function formatNews(news) {
 
   let html = ''
   sortedNews.forEach((newsItem) => {
-    // Debug: log the news item to see what fields are available
-    console.log('News data:', newsItem)
-
-    // Use abstract if available, otherwise use title as fallback
+    // use abstract if available, otherwise use title as fallback
     const description =
       newsItem.abstract || newsItem.title || 'No description available'
 
@@ -435,7 +432,7 @@ async function switchParkContent(parkIndex, contentType, parkCode) {
   contentDiv.removeClass('hidden')
 
   if (contentType === 'overview') {
-    // Overview is already loaded, just show it
+    // overview is already loaded, just show it
     return
   }
 
@@ -453,7 +450,6 @@ async function switchParkContent(parkIndex, contentType, parkCode) {
 
 // function to open alert URLs
 function openAlertUrl(url) {
-  console.log('Opening URL:', url)
   if (url && url !== '#') {
     window.open(url, '_blank', 'noopener,noreferrer')
   } else {
