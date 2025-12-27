@@ -518,7 +518,7 @@ function updateSearchURL(searchTerm, maxResults, selectedState) {
     params.delete('q')
   }
 
-  if (maxResults && maxResults !== '25') {
+  if (maxResults && maxResults !== '5') {
     params.set('limit', maxResults)
   } else {
     params.delete('limit')
@@ -538,7 +538,7 @@ function parseSearchURL() {
   const params = new URLSearchParams(window.location.search)
   return {
     searchTerm: params.get('q') || '',
-    maxResults: params.get('limit') || '25',
+    maxResults: params.get('limit') || '5',
     selectedState: params.get('state') || '',
   }
 }
@@ -590,14 +590,24 @@ function displayResults(responseJson, maxResults, requestedStates) {
     return
   }
 
+  // sort results by relevance score (highest first) to ensure best results
+  const sortedResults = [...responseJson.data].sort((a, b) => {
+    const scoreA = a.relevanceScore || 0
+    const scoreB = b.relevanceScore || 0
+    return scoreB - scoreA // descending order
+  })
+
+  // limit to maxResults
+  const limitedResults = sortedResults.slice(0, maxResults)
+
   // store current results
-  currentResults = responseJson.data
+  currentResults = limitedResults
 
   // add markers to map
-  addParkMarkers(responseJson.data)
+  addParkMarkers(limitedResults)
 
-  for (let i = 0; i < responseJson.data.length && i < maxResults; i++) {
-    const park = responseJson.data[i]
+  for (let i = 0; i < limitedResults.length; i++) {
+    const park = limitedResults[i]
     const address =
       park.addresses && park.addresses[1] ? park.addresses[1] : null
 
@@ -764,6 +774,40 @@ function toggleWelcomeSection() {
   }
 }
 
+// clear search and reset to initial state
+function clearSearch() {
+  // clear form inputs
+  $('#js-basic-search').val('')
+  $('#state-filter').val('')
+  $('#js-max-results').val('5')
+
+  // clear error messages
+  $('#js-error-message').empty()
+
+  // hide results
+  $('#results').addClass('hidden')
+  $('#results-list').empty()
+
+  // show and expand welcome section
+  $('.welcome-content').removeClass('collapsed')
+  $('.toggle-icon').text('−')
+
+  // clear map markers
+  clearMarkers()
+
+  // clear current results
+  currentResults = []
+
+  // clear URL parameters
+  window.history.pushState({}, '', window.location.pathname)
+
+  // reset map to default view
+  map.flyTo({
+    center: [-95.7129, 37.0902],
+    zoom: 4,
+  })
+}
+
 // listen for submit
 function watchForm() {
   $('#js-form').submit((event) => {
@@ -788,6 +832,11 @@ function watchForm() {
   // toggle welcome section
   $('#toggle-help').click(() => {
     toggleWelcomeSection()
+  })
+
+  // clear search button
+  $('#clear-search').click(() => {
+    clearSearch()
   })
 
   $(document).on('keydown', function (event) {

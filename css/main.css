@@ -181,11 +181,36 @@ select:focus {
   margin-top: 20px;
 }
 
+.results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
 #results h2 {
   color: #3a4a3a;
-  margin-bottom: 15px;
+  margin: 0;
   font-size: 1.4rem;
   font-weight: 600;
+}
+
+.clear-search {
+  background: transparent;
+  border: 1px solid #d0d6d0;
+  border-radius: 4px;
+  padding: 6px 14px;
+  cursor: pointer;
+  color: #5a6a5a;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.clear-search:hover {
+  background: #f7f8f6;
+  border-color: #6b8e6b;
+  color: #3a4a3a;
 }
 
 /* Welcome/Landing Section */

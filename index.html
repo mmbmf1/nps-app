@@ -51,8 +51,6 @@
               </button>
             </div>
             <div class="welcome-content">
-            <div class="welcome-content">
-              <h2>Discover America's National Parks</h2>
               <p class="welcome-intro">
                 Search for national parks by name, activity, or location. Explore
                 comprehensive park information including alerts, news, activities, and
@@ -135,7 +133,7 @@
                     type="number"
                     name="max-results"
                     id="js-max-results"
-                    value="25"
+                    value="5"
                     min="1"
                     max="100"
                   />
@@ -152,7 +150,12 @@
 
           <!-- Results Section -->
           <section id="results" class="hidden">
-            <h2>Search Results</h2>
+            <div class="results-header">
+              <h2>Search Results</h2>
+              <button type="button" class="clear-search" id="clear-search" aria-label="Clear search">
+                Clear
+              </button>
+            </div>
             <ul id="results-list"></ul>
           </section>
         </div>
