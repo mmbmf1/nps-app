@@ -115,32 +115,11 @@ input[type='submit']:disabled {
   cursor: not-allowed;
 }
 
-.advanced-search {
-  margin: 15px 0;
-  background: #f9faf9;
-  border-radius: 2px;
-  overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.advanced-search summary {
-  padding: 12px 15px;
-  background: transparent;
-  cursor: pointer;
-  font-weight: 500;
-  color: #4a5d4a;
-  transition: background-color 0.2s ease;
-}
-
-.advanced-search summary:hover {
-  background: #f2f4f2;
-}
-
-.filters {
-  padding: 15px;
+.filter-row {
   display: grid;
-  gap: 15px;
-  background: transparent;
+  grid-template-columns: 1fr 100px;
+  gap: 12px;
+  margin-top: 12px;
 }
 
 .filter-group {
@@ -149,38 +128,28 @@ input[type='submit']:disabled {
   gap: 4px;
 }
 
+.filter-group label {
+  margin-bottom: 6px;
+  font-size: 13px;
+}
+
 select {
-  padding: 8px;
-  border: none;
+  padding: 10px;
+  border: 1px solid #d0d6d0;
   border-radius: 2px;
-  font-size: 16px;
+  font-size: 14px;
   background: white;
-  min-height: 80px;
-  transition: box-shadow 0.2s ease;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
 }
 
 select:focus {
   outline: none;
+  border-color: #6b8e6b;
+  box-shadow: 0 0 0 2px rgba(107, 142, 107, 0.1);
   box-shadow: 0 0 0 2px rgba(107, 142, 107, 0.3);
 }
 
-#clear-states {
-  background: #8a9a8a;
-  color: white;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 2px;
-  cursor: pointer;
-  font-size: 14px;
-  align-self: flex-start;
-  margin-top: 4px;
-  transition: background-color 0.2s ease;
-}
-
-#clear-states:hover {
-  background: #7a8a7a;
-}
 
 .input-group {
   display: flex;
@@ -221,16 +190,62 @@ select:focus {
 
 /* Welcome/Landing Section */
 .welcome-section {
-  margin-top: 30px;
-  padding-top: 20px;
-  border-top: 1px solid #e0e6e0;
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e0e6e0;
 }
 
-.welcome-content h2 {
+.welcome-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.welcome-header h2 {
   color: #3a4a3a;
-  font-size: 1.5rem;
-  margin-bottom: 12px;
+  font-size: 1.3rem;
+  margin: 0;
   font-weight: 600;
+}
+
+.toggle-help {
+  background: transparent;
+  border: 1px solid #d0d6d0;
+  border-radius: 4px;
+  padding: 4px 12px;
+  cursor: pointer;
+  color: #5a6a5a;
+  font-size: 1.2rem;
+  line-height: 1;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.toggle-help:hover {
+  background: #f7f8f6;
+  border-color: #6b8e6b;
+  color: #3a4a3a;
+}
+
+.toggle-icon {
+  display: inline-block;
+  width: 16px;
+  text-align: center;
+}
+
+.welcome-content {
+  overflow: hidden;
+  transition: max-height 0.3s ease, opacity 0.3s ease;
+  max-height: 2000px;
+  opacity: 1;
+}
+
+.welcome-content.collapsed {
+  max-height: 0;
+  opacity: 0;
+  margin: 0;
+  padding: 0;
 }
 
 .welcome-intro {

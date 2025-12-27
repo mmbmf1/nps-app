@@ -509,7 +509,7 @@ function formatQueryParams(params) {
 }
 
 // URL parameter management for search and filters
-function updateSearchURL(searchTerm, maxResults, selectedStates) {
+function updateSearchURL(searchTerm, maxResults, selectedState) {
   const params = new URLSearchParams(window.location.search)
 
   if (searchTerm) {
@@ -524,10 +524,10 @@ function updateSearchURL(searchTerm, maxResults, selectedStates) {
     params.delete('limit')
   }
 
-  if (selectedStates && selectedStates.length > 0) {
-    params.set('states', selectedStates.join(','))
+  if (selectedState && selectedState !== '') {
+    params.set('state', selectedState)
   } else {
-    params.delete('states')
+    params.delete('state')
   }
 
   const newURL = `${window.location.pathname}?${params.toString()}`
@@ -539,7 +539,7 @@ function parseSearchURL() {
   return {
     searchTerm: params.get('q') || '',
     maxResults: params.get('limit') || '25',
-    selectedStates: params.get('states') ? params.get('states').split(',') : [],
+    selectedState: params.get('state') || '',
   }
 }
 
@@ -555,10 +555,8 @@ function restoreSearchFromURL() {
   }
 
   // restore state filter
-  if (urlParams.selectedStates.length > 0) {
-    $('#state-filter option').each(function () {
-      $(this).prop('selected', urlParams.selectedStates.includes($(this).val()))
-    })
+  if (urlParams.selectedState) {
+    $('#state-filter').val(urlParams.selectedState)
   }
 
   // if we have a search term, perform the search
@@ -572,7 +570,6 @@ function restoreSearchFromURL() {
 function showLoading() {
   $('#js-error-message').empty()
   $('#results').addClass('hidden')
-  $('#welcome').addClass('hidden')
   $('#js-form input[type="submit"]').prop('disabled', true).val('searching...')
 }
 
@@ -590,7 +587,6 @@ function displayResults(responseJson, maxResults, requestedStates) {
     $('#js-error-message').text(
       'no parks found for the specified search terms. please try different search terms.'
     )
-    $('#welcome').removeClass('hidden')
     return
   }
 
@@ -673,61 +669,37 @@ function displayResults(responseJson, maxResults, requestedStates) {
     $('#results-list').append(resultItem)
   }
   $('#results').removeClass('hidden')
-  $('#welcome').addClass('hidden')
 }
 
 // get query & response from api
 function getNatParkList(query, maxResults) {
-  // get selected states from dropdown
-  const selectedStates = []
-  $('#state-filter option:selected').each(function () {
-    selectedStates.push($(this).val())
-  })
+  // get selected state from dropdown (single select)
+  const selectedState = $('#state-filter').val()
 
-  // if states are selected, use statecode parameter with search term
-  if (selectedStates.length > 0) {
-    // make separate api calls for each selected state
-    const promises = selectedStates.map((stateCode) => {
-      const params = {
-        stateCode: stateCode,
-        q: query,
-        limit: maxResults,
-        fields: 'addresses',
-        sort: '-relevanceScore',
-        api_key: API_KEY,
-      }
-      const queryString = formatQueryParams(params)
-      const url = searchURL + '?' + queryString
+  // if a state is selected, use statecode parameter with search term
+  if (selectedState && selectedState !== '') {
+    // use statecode parameter with search term
+    const params = {
+      stateCode: selectedState,
+      q: query,
+      limit: maxResults,
+      fields: 'addresses',
+      sort: '-relevanceScore',
+      api_key: API_KEY,
+    }
 
-      return fetch(url).then((response) => {
+    const queryString = formatQueryParams(params)
+    const url = searchURL + '?' + queryString
+
+    fetch(url)
+      .then((response) => {
         if (response.ok) {
           return response.json()
         }
         throw new Error(`HTTP ${response.status}: ${response.statusText}`)
       })
-    })
-
-    Promise.all(promises)
-      .then((responses) => {
-        // combine all results and remove duplicates
-        const allParks = []
-        responses.forEach((response) => {
-          if (response.data) {
-            allParks.push(...response.data)
-          }
-        })
-
-        // sort combined results by relevance score
-        const uniqueParks = allParks
-          .filter(
-            (park, index, self) =>
-              index === self.findIndex((p) => p.id === park.id)
-          )
-          .sort((a, b) => (b.relevanceScore || 0) - (a.relevanceScore || 0))
-          .slice(0, maxResults)
-
-        const combinedResponse = { data: uniqueParks }
-        displayResults(combinedResponse, maxResults, query)
+      .then((responseJson) => {
+        displayResults(responseJson, maxResults, query)
       })
       .catch((error) => {
         $('#js-error-message').text(`something went wrong: ${error.message}`)
@@ -778,6 +750,20 @@ function populateStatesDropdown() {
   })
 }
 
+// toggle welcome section
+function toggleWelcomeSection() {
+  const welcomeContent = $('.welcome-content')
+  const toggleIcon = $('.toggle-icon')
+
+  if (welcomeContent.hasClass('collapsed')) {
+    welcomeContent.removeClass('collapsed')
+    toggleIcon.text('−')
+  } else {
+    welcomeContent.addClass('collapsed')
+    toggleIcon.text('+')
+  }
+}
+
 // listen for submit
 function watchForm() {
   $('#js-form').submit((event) => {
@@ -785,10 +771,7 @@ function watchForm() {
 
     const searchTerm = $('#js-basic-search').val().trim()
     const maxResults = $('#js-max-results').val()
-    const selectedStates = []
-    $('#state-filter option:selected').each(function () {
-      selectedStates.push($(this).val())
-    })
+    const selectedState = $('#state-filter').val()
 
     if (!searchTerm) {
       $('#js-error-message').text('please enter a search term.')
@@ -796,19 +779,15 @@ function watchForm() {
     }
 
     // update URL with search parameters
-    updateSearchURL(searchTerm, maxResults, selectedStates)
+    updateSearchURL(searchTerm, maxResults, selectedState)
 
     showLoading()
     getNatParkList(searchTerm, maxResults)
   })
 
-  // clear states button
-  $('#clear-states').click(() => {
-    $('#state-filter option:selected').prop('selected', false)
-    // update URL when clearing states
-    const searchTerm = $('#js-basic-search').val().trim()
-    const maxResults = $('#js-max-results').val()
-    updateSearchURL(searchTerm, maxResults, [])
+  // toggle welcome section
+  $('#toggle-help').click(() => {
+    toggleWelcomeSection()
   })
 
   $(document).on('keydown', function (event) {
@@ -835,11 +814,10 @@ function setupExampleTags() {
 // restore search state from URL on page load
 $(document).ready(() => {
   const urlParams = parseSearchURL()
-  // only show welcome if there's no search term in URL
-  if (!urlParams.searchTerm) {
-    $('#welcome').removeClass('hidden')
-  } else {
-    $('#welcome').addClass('hidden')
+  // collapse welcome section if there's a search term in URL
+  if (urlParams.searchTerm) {
+    $('.welcome-content').addClass('collapsed')
+    $('.toggle-icon').text('+')
   }
   setupExampleTags()
   restoreSearchFromURL()

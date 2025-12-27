@@ -42,57 +42,15 @@
         <div class="search-panel">
           <h1>National Park Search</h1>
 
-          <!-- Basic Search -->
-          <form id="js-form">
-            <div class="search-inputs">
-              <label for="basic-search"
-                >Search parks by name, activity, or location:</label
-              >
-              <input
-                type="text"
-                name="basic-search"
-                id="js-basic-search"
-                placeholder="e.g. Yellowstone, hiking, Colorado"
-                required
-              />
-
-              <!-- Advanced Search (collapsible) -->
-              <details class="advanced-search">
-                <summary>Advanced Filters</summary>
-                <div class="filters">
-                  <div class="filter-group">
-                    <label for="max-results">Max results to display:</label>
-                    <input
-                      type="number"
-                      name="max-results"
-                      id="js-max-results"
-                      value="25"
-                      min="1"
-                      max="100"
-                    />
-                  </div>
-                  <div class="filter-group">
-                    <label for="state-filter">Filter by states:</label>
-                    <select id="state-filter" multiple>
-                      <!-- state options -->
-                    </select>
-                    <button type="button" id="clear-states">
-                      Clear States
-                    </button>
-                  </div>
-                </div>
-              </details>
-
-              <div class="input-group">
-                <input type="submit" value="Search" />
-              </div>
-            </div>
-          </form>
-
-          <p id="js-error-message" class="error-message"></p>
-
-          <!-- Welcome/Landing Section -->
+          <!-- Welcome/Docs Section (collapsible) -->
           <section id="welcome" class="welcome-section">
+            <div class="welcome-header">
+              <h2>Discover America's National Parks</h2>
+              <button type="button" class="toggle-help" id="toggle-help" aria-label="Toggle help section">
+                <span class="toggle-icon">−</span>
+              </button>
+            </div>
+            <div class="welcome-content">
             <div class="welcome-content">
               <h2>Discover America's National Parks</h2>
               <p class="welcome-intro">
@@ -148,6 +106,49 @@
               </div>
             </div>
           </section>
+
+          <!-- Search Form -->
+          <form id="js-form">
+            <div class="search-inputs">
+              <label for="basic-search"
+                >Search parks by name, activity, or location:</label
+              >
+              <input
+                type="text"
+                name="basic-search"
+                id="js-basic-search"
+                placeholder="e.g. Yellowstone, hiking, Colorado"
+                required
+              />
+
+              <div class="filter-row">
+                <div class="filter-group">
+                  <label for="state-filter">Filter by state:</label>
+                  <select id="state-filter">
+                    <option value="">All states</option>
+                    <!-- state options -->
+                  </select>
+                </div>
+                <div class="filter-group">
+                  <label for="max-results">Max results:</label>
+                  <input
+                    type="number"
+                    name="max-results"
+                    id="js-max-results"
+                    value="25"
+                    min="1"
+                    max="100"
+                  />
+                </div>
+              </div>
+
+              <div class="input-group">
+                <input type="submit" value="Search" />
+              </div>
+            </div>
+          </form>
+
+          <p id="js-error-message" class="error-message"></p>
 
           <!-- Results Section -->
           <section id="results" class="hidden">
