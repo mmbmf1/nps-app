@@ -1,345 +1,90 @@
-# national park service app
+# National Park Service App
 
-search for national parks by name, activity, or location.
+Search for national parks by name, activity, or location with semantic search powered by vector embeddings.
 
-**[live demo](https://nps-app-xi.vercel.app/)**
+**[Live Demo](https://nps-app-xi.vercel.app/)**
 
-## what it does
+## Features
 
-search for parks by typing anything - park names, activities like "hiking", or locations like "colorado". optionally filter by specific states. results appear on an interactive map with clickable markers. explore comprehensive park data including alerts, news, things to do, and amenities.
+- **Semantic Search**: Intelligent meaning-based search using vector embeddings
+- **Interactive Map**: Mapbox integration with clickable park markers
+- **Park Data**: Alerts, news, things to do, and amenities
+- **State Filtering**: Filter results by state
+- **Shareable URLs**: Bookmark and share specific searches
+- **Responsive Design**: Works on desktop and mobile
 
-the app features a welcoming landing page that introduces users to the features and provides quick-start examples. when you first load the app, you'll see helpful tips, feature highlights, and clickable example searches to get you started.
+## Quick Start
 
-## features
+### Local Development
 
-- **smart search**: find parks by name, activity, or location
-- **interactive map**: mapbox integration with clickable park markers
-- **comprehensive park data**: alerts, news, things to do, and amenities
-- **synchronized experience**: click search results to highlight markers on the map, or click map markers to highlight search results. two-way synchronization keeps everything in sync.
-- **advanced filtering**: multi-select state filtering with clear button
-- **shareable searches**: bookmark and share specific searches with url parameters
-- **relevance sorting**: results sorted by relevance score
-- **responsive design**: works on desktop and mobile
-- **keyboard shortcuts**: cmd+k (mac) or ctrl+k (windows/linux) to focus search input
-- **loading states**: visual feedback during searches
-- **error handling**: specific error messages and validation
-- **expandable alerts**: click alert headers in map popups to expand/collapse details
-- **park submenus**: switch between overview, news, things to do, and amenities for each park
+1. Get API keys:
+   - [NPS API key](https://www.nps.gov/subjects/developer/get-started.htm)
+   - [Mapbox token](https://www.mapbox.com/)
 
-## project structure
+2. Copy `js/config.example.js` to `js/config.js` and add your keys
+
+3. Open `index.html` in a browser (or use a local server: `npx serve`)
+
+### Database Setup (for Semantic Search)
+
+1. **Create Vercel Postgres database** via Vercel dashboard → Storage
+
+2. **Enable pgvector extension** in Vercel SQL Editor:
+   ```sql
+   CREATE EXTENSION IF NOT EXISTS vector;
+   ```
+
+3. **Create schema** - run `schema.sql` in Vercel SQL Editor (creates `nps.parks` table)
+
+4. **Sync parks data**:
+   ```bash
+   vercel env pull .env.local
+   npm run sync
+   ```
+
+The sync script processes parks in parallel batches and can be resumed if interrupted.
+
+### Production Deployment
+
+Set these environment variables in Vercel:
+- `NPS_API_KEY`
+- `MAPBOX_ACCESS_TOKEN`
+- `POSTGRES_URL` (auto-provided by Vercel Postgres)
+
+Run `npm run build` before deploying.
+
+## Project Structure
 
 ```
 nps-app/
-├── index.html          # main html file
+├── index.html          # Main HTML
+├── api/
+│   ├── search.js       # Semantic search endpoint
+│   └── parks/[parkCode].js  # Park details endpoint
+├── scripts/
+│   └── sync-parks.js   # Database sync script
 ├── js/
-│   ├── index.js        # main application logic
-│   ├── config.js       # api keys (gitignored, created from config.example.js)
-│   └── config.example.js  # template for config.js
-├── css/
-│   └── main.css        # styles
-├── constants.js        # state list and other constants
-├── build.js           # build script for deployment
-└── package.json       # project metadata
+│   ├── index.js        # Main app logic
+│   └── config.js       # API keys (gitignored)
+├── css/main.css        # Styles
+├── schema.sql          # Database schema
+└── package.json
 ```
 
-## setup
+## Usage
 
-### prerequisites
+- **Search**: Type anything - park names, activities, or locations
+- **Filter**: Use state dropdown and max results input
+- **Explore**: Click park cards to see details (overview, news, things to do, amenities)
+- **Map**: Click markers or results to sync views
+- **Share**: Copy URL to share searches (`?q=hiking&state=CA&limit=5`)
 
-- a web browser with webgl support
-- a free nps api key from [nps.gov](https://www.nps.gov/subjects/developer/get-started.htm)
-- a free mapbox access token from [mapbox.com](https://www.mapbox.com/)
+## Tech Stack
 
-### local development
+Vanilla JS, jQuery, NPS API, Mapbox, Vercel Postgres, pgvector, semantic search (embeddings)
 
-1. get a free api key from [nps.gov](https://www.nps.gov/subjects/developer/get-started.htm)
-2. get a free mapbox token from [mapbox.com](https://www.mapbox.com/)
-3. copy `js/config.example.js` to `js/config.js`
-4. add your api keys to `js/config.js`:
-   ```javascript
-   const config = {
-     NPS_API_KEY: 'your_nps_api_key_here',
-     MAPBOX_ACCESS_TOKEN: 'your_mapbox_token_here',
-   }
-   ```
-5. open `index.html` in a web browser
+## Troubleshooting
 
-### running with a local server
-
-for better development experience, use a local server:
-
-```bash
-# using python
-python -m http.server 8000
-
-# using node.js
-npx serve
-
-# using php
-php -S localhost:8000
-```
-
-then open `http://localhost:8000` in your browser.
-
-### production/deployment
-
-for production deployments (e.g., vercel), set these environment variables:
-
-- `NPS_API_KEY` - your nps api key
-- `MAPBOX_ACCESS_TOKEN` - your mapbox access token
-
-the `build.js` script will automatically create `config.js` from these environment variables:
-
-```bash
-npm run build
-```
-
-## user interface
-
-### landing page
-
-when you first visit the app (or when there are no search results), you'll see a welcome section that includes:
-
-- **feature highlights**: overview of key features with icons
-- **quick examples**: clickable example searches (hiking, yellowstone, colorado, etc.)
-- **tips section**: helpful tips for using the app effectively
-
-this landing page helps new users understand what the app can do and provides quick ways to get started.
-
-### search interface
-
-the search panel is always visible on the right side of the screen, with the interactive map on the left. the interface adapts based on your search state:
-
-- **no search**: shows welcome/landing page
-- **searching**: shows loading state
-- **results**: shows search results with park cards
-- **error**: shows helpful error messages
-
-## usage
-
-### basic search
-
-type what you're looking for and hit search. the app searches park names, descriptions, activities, and locations. you can also click any of the example tags on the landing page to quickly try a search.
-
-### advanced filters
-
-use the "advanced filters" section to:
-
-- set maximum number of results (default: 25, max: 100)
-- filter by one or more states using the multi-select dropdown
-- clear state filters with the "clear states" button
-
-### exploring park data
-
-click on search result cards to explore detailed information:
-
-- **overview**: park description, website, and address
-- **news**: recent news releases and updates
-- **things to do**: activities, seasonal information, and accessibility details
-- **amenities**: facilities and services available at the park
-
-use the submenu buttons to switch between different types of information.
-
-### map interaction
-
-- **click search results**: highlights the corresponding marker on the map and centers the view
-- **click map markers**: highlights the corresponding search result and opens a popup with park alerts
-- **map popups**: click alert headers to expand/collapse details, or click "view full alert" to open the official nps page
-
-### sharing searches
-
-copy the url to share specific searches with friends. the url includes:
-
-- your search terms (`q` parameter)
-- selected state filters (`states` parameter)
-- maximum results (`limit` parameter)
-- map position and zoom level (stored in url hash by mapbox)
-
-**example url:**
-
-```
-?q=hiking&limit=10&states=CA,CO#zoom=6&center=-119.5,37.2
-```
-
-## url parameters
-
-the app supports shareable urls with encoded search state:
-
-- `q` - search query term
-- `limit` - maximum number of results (default: 25)
-- `states` - comma-separated list of state codes (e.g., `CA,CO,NY`)
-- map position is stored in the url hash (handled automatically by mapbox)
-
-**examples:**
-
-- `?q=yellowstone` - search for yellowstone
-- `?q=hiking&states=CA,CO` - search for hiking in california and colorado
-- `?q=colorado&limit=50` - search for colorado parks, show up to 50 results
-
-## examples
-
-- search "hiking" to find all parks with hiking trails
-- search "yellowstone" to find yellowstone national park
-- search "colorado" to find all parks in colorado
-- use advanced filters to search "hiking" in specific states
-- **explore park details**: click "things to do" to see activities, "news" for recent updates
-- **share searches**: copy url like `?q=hiking&states=CA,CO#zoom=6&center=-119.5,37.2`
-
-## keyboard shortcuts
-
-- `cmd+k` (mac) or `ctrl+k` (windows/linux) - focus search input
-
-## api endpoints
-
-the app uses the following nps api endpoints:
-
-- `GET /parks` - search parks by query, state, etc.
-- `GET /alerts` - get park alerts and closures
-- `GET /newsreleases` - get park news releases
-- `GET /thingstodo` - get activities and things to do
-- `GET /amenities` - get park amenities and facilities
-
-## dependencies
-
-- **jquery 3.3.1** - dom manipulation and event handling
-- **mapbox gl js v2.15.0** - interactive map rendering
-- **national park service api** - park data
-- **mapbox api** - map tiles and geocoding
-
-## browser support
-
-- modern browsers with es6+ support
-- mapbox gl js requires webgl support
-- tested on chrome, firefox, safari, and edge
-
-## troubleshooting
-
-### map not displaying
-
-- verify your mapbox access token is correct in `js/config.js`
-- check browser console for errors
-- ensure webgl is enabled in your browser
-- try a different browser if issues persist
-
-### no search results
-
-- verify your nps api key is correct in `js/config.js`
-- check the api key hasn't exceeded rate limits
-- try a different search term
-- check browser console for api errors
-
-### markers not appearing
-
-- ensure parks have valid coordinates in the api response
-- check browser console for javascript errors
-- verify mapbox token is valid and has proper permissions
-
-### config.js not found
-
-- make sure you've copied `js/config.example.js` to `js/config.js`
-- verify the file exists and contains both api keys
-- check file permissions
-
-## tech
-
-vanilla js, jquery, nps api, mapbox
-
-## code architecture
-
-### file organization
-
-- **`index.html`**: main html structure with search form, welcome section, and results container
-- **`js/index.js`**: core application logic including:
-  - map initialization and marker management
-  - search functionality and api integration
-  - park data fetching (alerts, news, things to do, amenities)
-  - ui state management (welcome/results visibility)
-  - url parameter handling
-- **`css/main.css`**: all styling including welcome section, search panel, results, and map popups
-- **`constants.js`**: state list for the filter dropdown
-- **`build.js`**: deployment script that creates `config.js` from environment variables
-
-### key functions
-
-- **`getNatParkList()`**: main search function that queries nps api
-- **`displayResults()`**: renders search results and manages welcome/results visibility
-- **`addParkMarkers()`**: adds map markers and handles marker interactions
-- **`switchParkContent()`**: handles switching between overview/news/things/amenities tabs
-- **`restoreSearchFromURL()`**: restores search state from url parameters on page load
-
-### ui state management
-
-the app manages visibility of three main sections:
-
-- **welcome section**: shown when no search has been performed
-- **results section**: shown when search results are available
-- **error messages**: shown inline when errors occur
-
-the welcome section automatically hides when:
-
-- a search is performed
-- search results are displayed
-- a url with search parameters is loaded
-
----
-
-# development roadmap
-
-## phase 1: core functionality ✅ complete
-
-- enhanced search with basic + advanced filtering
-- better error handling and user feedback
-- performance optimization
-
-## phase 2: user experience polish ✅ complete
-
-- **map integration with mapbox**
-  - map-focused layout with search panel
-  - park pins with click interactions
-  - search results sync with map view
-- responsive design improvements
-
-## phase 3: smart features 🔮 current
-
-- **comprehensive nps api integration**
-  - park news and updates ✅ complete
-  - events and programs ✅ complete
-  - alerts and closures ✅ complete
-  - amenities and facilities ✅ complete
-  - park boundaries and shapes
-- **dynamic hashtag suggestions**
-  - analyze search results to generate relevant hashtags
-  - show clickable filtering options based on actual results
-  - contextual filtering that adapts to your search
-- **url parameters for sharing** ✅ complete
-  - encode search terms, filters, and map state in url
-  - make searches bookmarkable and shareable
-  - restore state from url on page load
-- search suggestions and autocomplete
-- park details modal/page
-- search history and favorites
-
-## phase 4: polish & optimization 🔧 future
-
-- **code cleanup & simplification**
-  - consolidate and organize css (currently 895+ lines)
-  - remove unused styles and duplicate code
-  - optimize javascript function organization
-  - add inline documentation and comments
-- better styling (outdoor minimalist design)
-- pagination for large result sets
-- performance optimizations
-- advanced responsive design
-
-## phase 5: advanced features 🔮 future
-
-- **contextual map layers**
-  - fishing spots, water bodies, access points
-  - trail difficulty, elevation contours, trailheads
-  - wildlife viewing areas, migration routes
-  - scenic overlooks, photography spots
-- **smart map intelligence** - adapts layers based on search intent
-
-## vision
-
-transform from simple search tool to comprehensive park discovery platform with interactive maps and rich, multi-endpoint data integration.
+- **No map**: Check Mapbox token in `js/config.js`
+- **No results**: Verify NPS API key, check browser console
+- **Sync fails**: Ensure `POSTGRES_URL` in `.env.local`, verify pgvector extension enabled

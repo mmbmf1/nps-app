@@ -1,4 +1,4 @@
-const fs = require('fs')
+import fs from 'fs'
 
 // create config.js with environment variables
 const configContent = `const config = {

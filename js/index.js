@@ -681,72 +681,86 @@ function displayResults(responseJson, maxResults, requestedStates) {
   $('#results').removeClass('hidden')
 }
 
-// get query & response from api
+// fallback to NPS API if semantic search fails
+function searchNPSAPI(query, maxResults, selectedState) {
+  const params = {
+    q: query,
+    limit: maxResults,
+    fields: 'addresses',
+    sort: '-relevanceScore',
+    api_key: API_KEY,
+  }
+
+  if (selectedState && selectedState !== '') {
+    params.stateCode = selectedState
+  }
+
+  const queryString = formatQueryParams(params)
+  const url = searchURL + '?' + queryString
+
+  return fetch(url).then((response) => {
+    if (response.ok) {
+      return response.json()
+    }
+    throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+  })
+}
+
+// get query & response from semantic search API (with fallback to NPS API)
 function getNatParkList(query, maxResults) {
   // get selected state from dropdown (single select)
   const selectedState = $('#state-filter').val()
 
-  // if a state is selected, use statecode parameter with search term
-  if (selectedState && selectedState !== '') {
-    // use statecode parameter with search term
-    const params = {
-      stateCode: selectedState,
-      q: query,
+  // try semantic search first
+  fetch('/api/search', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      query: query,
       limit: maxResults,
-      fields: 'addresses',
-      sort: '-relevanceScore',
-      api_key: API_KEY,
-    }
-
-    const queryString = formatQueryParams(params)
-    const url = searchURL + '?' + queryString
-
-    fetch(url)
-      .then((response) => {
-        if (response.ok) {
-          return response.json()
-        }
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`)
-      })
-      .then((responseJson) => {
+      state: selectedState || null,
+    }),
+  })
+    .then((response) => {
+      if (response.ok) {
+        return response.json()
+      }
+      // If semantic search fails, throw to trigger fallback
+      throw new Error(`Semantic search failed: ${response.status}`)
+    })
+    .then((responseJson) => {
+      // Check if we got results (even if fallback was used)
+      if (responseJson.data && responseJson.data.length > 0) {
         displayResults(responseJson, maxResults, query)
-      })
-      .catch((error) => {
-        $('#js-error-message').text(`something went wrong: ${error.message}`)
-      })
-      .finally(() => {
         hideLoading()
-      })
-  } else {
-    // no states selected, use q parameter for general search
-    const params = {
-      q: query,
-      limit: maxResults,
-      fields: 'addresses',
-      sort: '-relevanceScore',
-      api_key: API_KEY,
-    }
-
-    const queryString = formatQueryParams(params)
-    const url = searchURL + '?' + queryString
-
-    fetch(url)
-      .then((response) => {
-        if (response.ok) {
-          return response.json()
-        }
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`)
-      })
-      .then((responseJson) => {
-        displayResults(responseJson, maxResults, query)
-      })
-      .catch((error) => {
-        $('#js-error-message').text(`something went wrong: ${error.message}`)
-      })
-      .finally(() => {
-        hideLoading()
-      })
-  }
+      } else {
+        // No results from semantic search, try NPS API
+        return searchNPSAPI(query, maxResults, selectedState).then(
+          (npsResponseJson) => {
+            displayResults(npsResponseJson, maxResults, query)
+            hideLoading()
+          }
+        )
+      }
+    })
+    .catch((error) => {
+      console.error('Search error:', error)
+      // Final fallback to NPS API
+      searchNPSAPI(query, maxResults, selectedState)
+        .then((responseJson) => {
+          displayResults(responseJson, maxResults, query)
+        })
+        .catch((fallbackError) => {
+          $('#js-error-message').text(
+            `something went wrong: ${fallbackError.message}`
+          )
+        })
+        .finally(() => {
+          hideLoading()
+        })
+    })
 }
 
 // populate states dropdown
