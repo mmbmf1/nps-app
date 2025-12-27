@@ -219,6 +219,147 @@ select:focus {
   font-weight: 600;
 }
 
+/* Welcome/Landing Section */
+.welcome-section {
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #e0e6e0;
+}
+
+.welcome-content h2 {
+  color: #3a4a3a;
+  font-size: 1.5rem;
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+.welcome-intro {
+  color: #5a6a5a;
+  line-height: 1.6;
+  margin-bottom: 24px;
+  font-size: 0.95rem;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.feature-item {
+  background: #f7f8f6;
+  padding: 16px;
+  border-radius: 6px;
+  border: 1px solid #e0e6e0;
+}
+
+.feature-icon {
+  font-size: 1.8rem;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.feature-item h3 {
+  font-size: 0.95rem;
+  margin: 0 0 6px;
+  color: #3a4a3a;
+  font-weight: 600;
+}
+
+.feature-item p {
+  font-size: 0.85rem;
+  color: #5a6a5a;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.quick-examples {
+  margin-bottom: 24px;
+}
+
+.quick-examples h3 {
+  font-size: 0.95rem;
+  color: #3a4a3a;
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+.example-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.example-tag {
+  background: white;
+  border: 1px solid #6b8e6b;
+  color: #6b8e6b;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.example-tag:hover {
+  background: #6b8e6b;
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(107, 142, 107, 0.3);
+}
+
+.tips-section {
+  background: #f7f8f6;
+  padding: 16px;
+  border-radius: 6px;
+  border: 1px solid #e0e6e0;
+}
+
+.tips-section h3 {
+  font-size: 0.95rem;
+  color: #3a4a3a;
+  margin: 0 0 12px;
+  font-weight: 600;
+}
+
+.tips-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tips-list li {
+  font-size: 0.85rem;
+  color: #5a6a5a;
+  line-height: 1.5;
+  padding: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  transform: none;
+}
+
+.tips-list li:hover {
+  box-shadow: none;
+  transform: none;
+}
+
+.tips-list kbd {
+  background: white;
+  border: 1px solid #d0d6d0;
+  border-radius: 3px;
+  padding: 2px 6px;
+  font-size: 0.75rem;
+  font-family: 'Monaco', 'Menlo', monospace;
+  color: #3a4a3a;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
 ul {
   list-style: none;
   padding: 0;

@@ -572,6 +572,7 @@ function restoreSearchFromURL() {
 function showLoading() {
   $('#js-error-message').empty()
   $('#results').addClass('hidden')
+  $('#welcome').addClass('hidden')
   $('#js-form input[type="submit"]').prop('disabled', true).val('searching...')
 }
 
@@ -589,6 +590,7 @@ function displayResults(responseJson, maxResults, requestedStates) {
     $('#js-error-message').text(
       'no parks found for the specified search terms. please try different search terms.'
     )
+    $('#welcome').removeClass('hidden')
     return
   }
 
@@ -671,6 +673,7 @@ function displayResults(responseJson, maxResults, requestedStates) {
     $('#results-list').append(resultItem)
   }
   $('#results').removeClass('hidden')
+  $('#welcome').addClass('hidden')
 }
 
 // get query & response from api
@@ -820,7 +823,24 @@ $(watchForm)
 $(populateStatesDropdown)
 $(addTabHandlers)
 
+// handle example tag clicks
+function setupExampleTags() {
+  $('.example-tag').on('click', function () {
+    const query = $(this).data('query')
+    $('#js-basic-search').val(query)
+    $('#js-form').submit()
+  })
+}
+
 // restore search state from URL on page load
 $(document).ready(() => {
+  const urlParams = parseSearchURL()
+  // only show welcome if there's no search term in URL
+  if (!urlParams.searchTerm) {
+    $('#welcome').removeClass('hidden')
+  } else {
+    $('#welcome').addClass('hidden')
+  }
+  setupExampleTags()
   restoreSearchFromURL()
 })

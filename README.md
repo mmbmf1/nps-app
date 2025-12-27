@@ -8,6 +8,8 @@ search for national parks by name, activity, or location.
 
 search for parks by typing anything - park names, activities like "hiking", or locations like "colorado". optionally filter by specific states. results appear on an interactive map with clickable markers. explore comprehensive park data including alerts, news, things to do, and amenities.
 
+the app features a welcoming landing page that introduces users to the features and provides quick-start examples. when you first load the app, you'll see helpful tips, feature highlights, and clickable example searches to get you started.
+
 ## features
 
 - **smart search**: find parks by name, activity, or location
@@ -92,11 +94,32 @@ the `build.js` script will automatically create `config.js` from these environme
 npm run build
 ```
 
+## user interface
+
+### landing page
+
+when you first visit the app (or when there are no search results), you'll see a welcome section that includes:
+
+- **feature highlights**: overview of key features with icons
+- **quick examples**: clickable example searches (hiking, yellowstone, colorado, etc.)
+- **tips section**: helpful tips for using the app effectively
+
+this landing page helps new users understand what the app can do and provides quick ways to get started.
+
+### search interface
+
+the search panel is always visible on the right side of the screen, with the interactive map on the left. the interface adapts based on your search state:
+
+- **no search**: shows welcome/landing page
+- **searching**: shows loading state
+- **results**: shows search results with park cards
+- **error**: shows helpful error messages
+
 ## usage
 
 ### basic search
 
-type what you're looking for and hit search. the app searches park names, descriptions, activities, and locations.
+type what you're looking for and hit search. the app searches park names, descriptions, activities, and locations. you can also click any of the example tags on the landing page to quickly try a search.
 
 ### advanced filters
 
@@ -220,6 +243,43 @@ the app uses the following nps api endpoints:
 ## tech
 
 vanilla js, jquery, nps api, mapbox
+
+## code architecture
+
+### file organization
+
+- **`index.html`**: main html structure with search form, welcome section, and results container
+- **`js/index.js`**: core application logic including:
+  - map initialization and marker management
+  - search functionality and api integration
+  - park data fetching (alerts, news, things to do, amenities)
+  - ui state management (welcome/results visibility)
+  - url parameter handling
+- **`css/main.css`**: all styling including welcome section, search panel, results, and map popups
+- **`constants.js`**: state list for the filter dropdown
+- **`build.js`**: deployment script that creates `config.js` from environment variables
+
+### key functions
+
+- **`getNatParkList()`**: main search function that queries nps api
+- **`displayResults()`**: renders search results and manages welcome/results visibility
+- **`addParkMarkers()`**: adds map markers and handles marker interactions
+- **`switchParkContent()`**: handles switching between overview/news/things/amenities tabs
+- **`restoreSearchFromURL()`**: restores search state from url parameters on page load
+
+### ui state management
+
+the app manages visibility of three main sections:
+
+- **welcome section**: shown when no search has been performed
+- **results section**: shown when search results are available
+- **error messages**: shown inline when errors occur
+
+the welcome section automatically hides when:
+
+- a search is performed
+- search results are displayed
+- a url with search parameters is loaded
 
 ---
 
