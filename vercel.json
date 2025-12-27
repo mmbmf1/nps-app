@@ -1,0 +1,11 @@
+{
+  "functions": {
+    "api/search.js": {
+      "maxDuration": 30
+    },
+    "api/parks/[parkCode].js": {
+      "maxDuration": 10
+    }
+  },
+  "buildCommand": "npm run build"
+}
