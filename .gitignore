@@ -2,3 +2,7 @@
 .env
 config.js
 .vercel
+node_modules/
+js/config.js
+*.log
+.DS_Store
