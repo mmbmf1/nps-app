@@ -13,11 +13,12 @@ try {
 
 // Create config.js with environment variables AND exports
 // This file combines the runtime config with the TypeScript exports
+// Note: NPS_API_KEY is now server-side only (in Vercel serverless functions)
 const configContent = `// Configuration module that reads from global config object
 // The config object is injected by build.js from environment variables
+// Note: NPS_API_KEY is now server-side only (in Vercel serverless functions)
 
 const config = {
-  NPS_API_KEY: '${process.env.NPS_API_KEY || ''}',
   MAPBOX_ACCESS_TOKEN: '${process.env.MAPBOX_ACCESS_TOKEN || ''}'
 }
 window.config = config
@@ -29,20 +30,13 @@ function getConfig() {
   }
   // Fallback for when config is not yet loaded
   return {
-    NPS_API_KEY: '',
     MAPBOX_ACCESS_TOKEN: '',
   }
-}
-
-export function getAPIKey() {
-  return getConfig().NPS_API_KEY
 }
 
 export function getMapboxAccessToken() {
   return getConfig().MAPBOX_ACCESS_TOKEN
 }
-
-export const SEARCH_URL = 'https://developer.nps.gov/api/v1/parks'
 `
 fs.writeFileSync('js/config.js', configContent)
 console.log('Config file created')

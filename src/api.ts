@@ -9,7 +9,6 @@ import {
   ThingToDo,
   Amenity,
 } from './types.js'
-import { getAPIKey, SEARCH_URL } from './config.js'
 
 // Helper function to validate and parse API responses
 async function fetchWithValidation<T>(
@@ -89,21 +88,20 @@ export async function searchParks(
     limit: maxResults,
     fields: 'addresses',
     sort: '-relevanceScore',
-    api_key: getAPIKey(),
   })
 
   if (stateCode && stateCode !== '') {
     params.set('stateCode', stateCode)
   }
 
-  const url = `${SEARCH_URL}?${params.toString()}`
+  const url = `/api/parks?${params.toString()}`
   return fetchWithValidation(url, isParksResponse)
 }
 
 // Fetch alerts for a specific park
 export async function fetchParkAlerts(parkCode: string): Promise<Alert[]> {
   try {
-    const url = `https://developer.nps.gov/api/v1/alerts?parkCode=${parkCode}&api_key=${getAPIKey()}`
+    const url = `/api/alerts?parkCode=${parkCode}`
     const response = await fetchWithValidation(url, isAlertsResponse)
     return response.data || []
   } catch (error) {
@@ -115,7 +113,7 @@ export async function fetchParkAlerts(parkCode: string): Promise<Alert[]> {
 // Fetch news releases for a specific park
 export async function fetchParkNews(parkCode: string): Promise<NewsRelease[]> {
   try {
-    const url = `https://developer.nps.gov/api/v1/newsreleases?parkCode=${parkCode}&api_key=${getAPIKey()}`
+    const url = `/api/news?parkCode=${parkCode}`
     const response = await fetchWithValidation(url, isNewsResponse)
     return response.data || []
   } catch (error) {
@@ -129,7 +127,7 @@ export async function fetchParkThingsToDo(
   parkCode: string
 ): Promise<ThingToDo[]> {
   try {
-    const url = `https://developer.nps.gov/api/v1/thingstodo?parkCode=${parkCode}&api_key=${getAPIKey()}`
+    const url = `/api/thingstodo?parkCode=${parkCode}`
     const response = await fetchWithValidation(url, isThingsToDoResponse)
     return response.data || []
   } catch (error) {
@@ -143,7 +141,7 @@ export async function fetchParkAmenities(
   parkCode: string
 ): Promise<Amenity[]> {
   try {
-    const url = `https://developer.nps.gov/api/v1/amenities?parkCode=${parkCode}&api_key=${getAPIKey()}`
+    const url = `/api/amenities?parkCode=${parkCode}`
     const response = await fetchWithValidation(url, isAmenitiesResponse)
     return response.data || []
   } catch (error) {
