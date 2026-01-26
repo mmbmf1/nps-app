@@ -1,10 +1,10 @@
 // Configuration module that reads from global config object
 // The config object is injected by build.js from environment variables
+// Note: NPS_API_KEY is now server-side only (in Vercel serverless functions)
 
 declare global {
   interface Window {
     config?: {
-      NPS_API_KEY: string
       MAPBOX_ACCESS_TOKEN: string
     }
   }
@@ -17,17 +17,10 @@ function getConfig() {
   }
   // Fallback for when config is not yet loaded
   return {
-    NPS_API_KEY: '',
     MAPBOX_ACCESS_TOKEN: '',
   }
-}
-
-export function getAPIKey(): string {
-  return getConfig().NPS_API_KEY
 }
 
 export function getMapboxAccessToken(): string {
   return getConfig().MAPBOX_ACCESS_TOKEN
 }
-
-export const SEARCH_URL = 'https://developer.nps.gov/api/v1/parks'

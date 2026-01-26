@@ -223,7 +223,7 @@ select:focus {
 .welcome-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: 16px;
 }
 
@@ -238,13 +238,22 @@ select:focus {
   background: transparent;
   border: 1px solid #d0d6d0;
   border-radius: 4px;
-  padding: 4px 12px;
+  padding: 2px 8px;
   cursor: pointer;
   color: #5a6a5a;
-  font-size: 1.2rem;
+  font-size: 0.9rem;
   line-height: 1;
   transition: all 0.2s ease;
   font-family: inherit;
+  margin-top: 2px;
+}
+
+/* Larger button on mobile */
+@media (max-width: 768px) {
+  .toggle-help {
+    padding: 4px 12px;
+    font-size: 1.2rem;
+  }
 }
 
 .toggle-help:hover {
@@ -315,7 +324,8 @@ select:focus {
 }
 
 .quick-examples {
-  margin-bottom: 24px;
+  margin-top: 16px;
+  margin-bottom: 16px;
 }
 
 .quick-examples h3 {

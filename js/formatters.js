@@ -6,6 +6,33 @@ function escapeHtml(text) {
     div.textContent = text;
     return div.innerHTML;
 }
+// Check if text contains HTML tags
+function containsHtml(text) {
+    if (!text)
+        return false;
+    return /<[a-z][\s\S]*>/i.test(text);
+}
+// Sanitize HTML by allowing only safe tags
+function sanitizeHtml(html) {
+    if (!html)
+        return '';
+    // Create a temporary div to parse HTML
+    const div = document.createElement('div');
+    div.innerHTML = html;
+    // Remove script tags and event handlers
+    const scripts = div.querySelectorAll('script');
+    scripts.forEach(script => script.remove());
+    // Remove event handlers from all elements
+    const allElements = div.querySelectorAll('*');
+    allElements.forEach(el => {
+        Array.from(el.attributes).forEach(attr => {
+            if (attr.name.startsWith('on')) {
+                el.removeAttribute(attr.name);
+            }
+        });
+    });
+    return div.innerHTML;
+}
 // Format park alerts for display
 export function formatParkAlerts(alerts) {
     let html = `<div class="alerts-container">
@@ -26,23 +53,28 @@ export function formatParkAlerts(alerts) {
         });
         sortedAlerts.forEach((alert) => {
             const categoryClass = alert.category.toLowerCase().replace(/\s+/g, '-');
-            const escapedUrl = escapeHtml(alert.url);
-            const escapedTitle = escapeHtml(alert.title);
-            const escapedDescription = escapeHtml(alert.description);
+            const url = alert.url || '';
+            const title = alert.title || '';
+            const description = alert.description || '';
+            const category = alert.category || '';
+            // If content contains HTML, sanitize it; otherwise escape it
+            const safeUrl = escapeHtml(url);
+            const safeTitle = containsHtml(title) ? sanitizeHtml(title) : escapeHtml(title);
+            const safeDescription = containsHtml(description) ? sanitizeHtml(description) : escapeHtml(description);
+            const safeCategory = escapeHtml(category);
             // Only show view full alert button if there's a URL
-            const viewFullAlertButton = alert.url
-                ? `<button class="alert-link" onclick="openAlertUrl('${escapedUrl}')">view full alert</button>`
+            const viewFullAlertButton = url
+                ? `<button class="alert-link" onclick="openAlertUrl('${safeUrl}')">view full alert</button>`
                 : '';
-            const escapedCategory = escapeHtml(alert.category);
             html += `
         <div class="alert-item ${categoryClass}">
           <div class="alert-header" onclick="toggleAlert(this)">
-            <span class="alert-category">${escapedCategory}</span>
-            <h4 class="alert-title">${escapedTitle}</h4>
+            <span class="alert-category">${safeCategory}</span>
+            <h4 class="alert-title">${safeTitle}</h4>
             <span class="alert-toggle">+</span>
           </div>
           <div class="alert-content" style="display: none;">
-            <p class="alert-description">${escapedDescription}</p>
+            <p class="alert-description">${safeDescription}</p>
             ${viewFullAlertButton}
           </div>
         </div>
@@ -66,24 +98,27 @@ export function formatNews(news) {
     });
     let html = '';
     sortedNews.forEach((newsItem) => {
-        // Use abstract if available, otherwise use title as fallback
-        const description = escapeHtml(newsItem.abstract || newsItem.title || 'No description available');
-        const escapedTitle = escapeHtml(newsItem.title);
-        const escapedUrl = escapeHtml(newsItem.url);
+        const title = newsItem.title || '';
+        const description = newsItem.abstract || newsItem.title || 'No description available';
+        const url = newsItem.url || '';
         const releaseDate = newsItem.releaseDate || newsItem.date;
+        // If content contains HTML, sanitize it; otherwise escape it
+        const safeTitle = containsHtml(title) ? sanitizeHtml(title) : escapeHtml(title);
+        const safeDescription = containsHtml(description) ? sanitizeHtml(description) : escapeHtml(description);
+        const safeUrl = escapeHtml(url);
         html += `
       <div class="alert-item information">
         <div class="alert-header">
           <span class="alert-category">News</span>
-          <h4 class="alert-title">${escapedTitle}</h4>
+          <h4 class="alert-title">${safeTitle}</h4>
         </div>
         <div class="alert-content">
-          <p class="alert-description">${description}</p>
+          <p class="alert-description">${safeDescription}</p>
           ${releaseDate
             ? `<p class="news-date"><strong>Published:</strong> ${new Date(releaseDate).toLocaleDateString()}</p>`
             : ''}
-          ${newsItem.url
-            ? `<a href="${escapedUrl}" target="_blank" rel="noopener noreferrer" class="alert-link">read full article</a>`
+          ${url
+            ? `<a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="alert-link">read full article</a>`
             : ''}
         </div>
       </div>
@@ -98,30 +133,38 @@ export function formatThingsToDo(thingsToDo) {
     }
     let html = '<div class="things-list">';
     thingsToDo.forEach((thing) => {
-        const escapedTitle = escapeHtml(thing.title);
-        const escapedShortDesc = escapeHtml(thing.shortDescription || 'No description available');
-        const escapedLongDesc = escapeHtml(thing.longDescription || '');
-        const escapedSeason = escapeHtml(thing.seasonDescription || '');
-        const escapedTimeOfDay = escapeHtml(thing.timeOfDayDescription || '');
-        const escapedDuration = escapeHtml(thing.durationDescription || '');
-        const escapedAccessibility = escapeHtml(thing.accessibilityInformation || '');
+        const title = thing.title || '';
+        const shortDesc = thing.shortDescription || 'No description available';
+        const longDesc = thing.longDescription || '';
+        const season = thing.seasonDescription || '';
+        const timeOfDay = thing.timeOfDayDescription || '';
+        const duration = thing.durationDescription || '';
+        const accessibility = thing.accessibilityInformation || '';
+        // If content contains HTML, sanitize it; otherwise escape it
+        const safeTitle = containsHtml(title) ? sanitizeHtml(title) : escapeHtml(title);
+        const safeShortDesc = containsHtml(shortDesc) ? sanitizeHtml(shortDesc) : escapeHtml(shortDesc);
+        const safeLongDesc = containsHtml(longDesc) ? sanitizeHtml(longDesc) : escapeHtml(longDesc);
+        const safeSeason = containsHtml(season) ? sanitizeHtml(season) : escapeHtml(season);
+        const safeTimeOfDay = containsHtml(timeOfDay) ? sanitizeHtml(timeOfDay) : escapeHtml(timeOfDay);
+        const safeDuration = containsHtml(duration) ? sanitizeHtml(duration) : escapeHtml(duration);
+        const safeAccessibility = containsHtml(accessibility) ? sanitizeHtml(accessibility) : escapeHtml(accessibility);
         html += `
       <div class="thing-item">
-        <h4 class="thing-title">${escapedTitle}</h4>
-        <p class="thing-description">${escapedShortDesc}</p>
-        ${escapedLongDesc ? `<p class="thing-details">${escapedLongDesc}</p>` : ''}
+        <h4 class="thing-title">${safeTitle}</h4>
+        <p class="thing-description">${safeShortDesc}</p>
+        ${safeLongDesc ? `<p class="thing-details">${safeLongDesc}</p>` : ''}
         <div class="thing-meta">
-          ${escapedSeason
-            ? `<span class="meta-item"><strong>Season:</strong> ${escapedSeason}</span>`
+          ${safeSeason
+            ? `<span class="meta-item"><strong>Season:</strong> ${safeSeason}</span>`
             : ''}
-          ${escapedTimeOfDay
-            ? `<span class="meta-item"><strong>Best Time:</strong> ${escapedTimeOfDay}</span>`
+          ${safeTimeOfDay
+            ? `<span class="meta-item"><strong>Best Time:</strong> ${safeTimeOfDay}</span>`
             : ''}
-          ${escapedDuration
-            ? `<span class="meta-item"><strong>Duration:</strong> ${escapedDuration}</span>`
+          ${safeDuration
+            ? `<span class="meta-item"><strong>Duration:</strong> ${safeDuration}</span>`
             : ''}
-          ${escapedAccessibility
-            ? `<span class="meta-item"><strong>Accessibility:</strong> ${escapedAccessibility}</span>`
+          ${safeAccessibility
+            ? `<span class="meta-item"><strong>Accessibility:</strong> ${safeAccessibility}</span>`
             : ''}
         </div>
       </div>

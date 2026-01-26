@@ -93,7 +93,8 @@ function initUI(): void {
   // Restore search state from URL on page load
   restoreSearchFromURL()
 
-  // Collapse welcome section if there's a search term in URL
+  // Welcome section defaults to collapsed (set in HTML)
+  // If there's a search term in URL, ensure it stays collapsed
   const urlParams = parseSearchURL()
   if (urlParams.searchTerm) {
     const welcomeContent = document.querySelector('.welcome-content')

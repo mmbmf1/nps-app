@@ -7,6 +7,14 @@ import { addParkMarkers, highlightMarker, clearMarkers, resetMapView } from './m
 // Store current results
 let currentResults: Park[] = []
 
+// Escape HTML helper (for use in ui.ts)
+function escapeHtml(text: string | undefined | null): string {
+  if (!text) return ''
+  const div = document.createElement('div')
+  div.textContent = text
+  return div.innerHTML
+}
+
 // Populate states dropdown
 export function populateStatesDropdown(): void {
   const stateFilter = document.getElementById('state-filter')
@@ -177,7 +185,7 @@ export function displayResults(
         </div>
       </div>
       <div class="park-content" id="park-${i}-overview">
-        <p>${park.description}</p>
+        <p>${escapeHtml(park.description)}</p>
         <a href="${park.url}" target="_blank" rel="noopener">${park.url}</a>
         ${addressHtml}
       </div>
