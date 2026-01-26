@@ -47,50 +47,15 @@
             <div class="welcome-header">
               <h2>Discover America's National Parks</h2>
               <button type="button" class="toggle-help" id="toggle-help" aria-label="Toggle help section">
-                <span class="toggle-icon">−</span>
+                <span class="toggle-icon">+</span>
               </button>
             </div>
-            <div class="welcome-content">
+            <div class="welcome-content collapsed">
               <p class="welcome-intro">
                 Search for national parks by name, activity, or location. Explore
                 comprehensive park information including alerts, news, activities, and
                 amenities—all on an interactive map.
               </p>
-
-              <div class="features-grid">
-                <div class="feature-item">
-                  <span class="feature-icon">🗺️</span>
-                  <h3>Interactive Map</h3>
-                  <p>Explore parks on an interactive map with clickable markers</p>
-                </div>
-                <div class="feature-item">
-                  <span class="feature-icon">🔍</span>
-                  <h3>Smart Search</h3>
-                  <p>Find parks by name, activity, or location</p>
-                </div>
-                <div class="feature-item">
-                  <span class="feature-icon">📰</span>
-                  <h3>Park Details</h3>
-                  <p>View alerts, news, activities, and amenities</p>
-                </div>
-                <div class="feature-item">
-                  <span class="feature-icon">📍</span>
-                  <h3>State Filtering</h3>
-                  <p>Filter results by one or more states</p>
-                </div>
-              </div>
-
-              <div class="quick-examples">
-                <h3>Try searching for:</h3>
-                <div class="example-tags">
-                  <button class="example-tag" data-query="hiking">hiking</button>
-                  <button class="example-tag" data-query="yellowstone">yellowstone</button>
-                  <button class="example-tag" data-query="colorado">colorado</button>
-                  <button class="example-tag" data-query="camping">camping</button>
-                  <button class="example-tag" data-query="yosemite">yosemite</button>
-                  <button class="example-tag" data-query="wildlife">wildlife</button>
-                </div>
-              </div>
 
               <div class="tips-section">
                 <h3>💡 Tips</h3>
@@ -146,6 +111,18 @@
             </div>
           </form>
 
+          <div class="quick-examples">
+            <h3>Try searching for:</h3>
+            <div class="example-tags">
+              <button class="example-tag" data-query="hiking">hiking</button>
+              <button class="example-tag" data-query="yellowstone">yellowstone</button>
+              <button class="example-tag" data-query="colorado">colorado</button>
+              <button class="example-tag" data-query="camping">camping</button>
+              <button class="example-tag" data-query="yosemite">yosemite</button>
+              <button class="example-tag" data-query="wildlife">wildlife</button>
+            </div>
+          </div>
+
           <p id="js-error-message" class="error-message"></p>
 
           <!-- Results Section -->
@@ -162,9 +139,7 @@
       </div>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
-    <script src="constants.js"></script>
     <script src="js/config.js"></script>
-    <script src="js/index.js"></script>
+    <script type="module" src="js/index.js"></script>
   </body>
 </html>
